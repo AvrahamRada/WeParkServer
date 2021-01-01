@@ -9,6 +9,7 @@ import javax.persistence.Table;
 //import org.springframework.data.mongodb.core.mapping.Document;
 
 import acs.util.UserRole;
+// AR
 
 //@Entity
 //@Table(name="USERS")
