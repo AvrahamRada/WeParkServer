@@ -3,13 +3,12 @@ package acs.util;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 
-@Embeddable
+//@Embeddable
 public class InvokedBy {
 	
 	private UserId userId;
 	
 	public InvokedBy() {
-		
 	}
 
 	public InvokedBy(UserId userId) {
@@ -17,7 +16,7 @@ public class InvokedBy {
 		this.userId = userId;
 	}
 
-	@Embedded
+//	@Embedded
 	public UserId getUserId() {
 		return userId;
 	}
@@ -28,10 +27,8 @@ public class InvokedBy {
 
 	public void validation() {
 		if(this.userId == null) {
-			throw new RuntimeException("userId was not instantiate");
+			throw new RuntimeException("\n** ERROR ** \nuserId is NULL.");
 		}
 		this.userId.validation();
 	}
-	
-	
 }

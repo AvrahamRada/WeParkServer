@@ -1,12 +1,10 @@
 package acs.util;
 
-
 public class CreatedBy {
 
 	private UserId userId;
 
 	public CreatedBy() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public CreatedBy(UserId userId) {
@@ -24,9 +22,8 @@ public class CreatedBy {
 	public void validation() {
 
 		if (userId == null) {
-			throw new RuntimeException("userId was not instantiate");
+			throw new RuntimeException("\n** ERROR ** \nuserId is NULL.");
 		}
 		userId.validation();
-
 	}
 }

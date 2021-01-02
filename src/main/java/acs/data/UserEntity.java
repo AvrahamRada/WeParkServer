@@ -20,7 +20,7 @@ public class UserEntity {//USERS
 	private String userId; // USER_ID PK VARCHAR(255)
 	private UserRole role; // ROLE VARCHAR(255) 
 	private String username; // USERNAME VARCHAR(255)
-	private String avatar; //AVATAR VARCHAR(255)
+//	private String avatar; //AVATAR VARCHAR(255)
 
 	public UserEntity() {
 //		this.userId = new UserId();
@@ -31,7 +31,7 @@ public class UserEntity {//USERS
 		this.userId = userId;
 		this.role = UserRole.valueOf(role);
 		this.username = username;
-		this.avatar = avatar;
+//		this.avatar = avatar;
 	}
 
 	//@Id
@@ -64,20 +64,20 @@ public class UserEntity {//USERS
 		}
 	}
 
-	public String getAvatar() {
-		return avatar;
-	}
-
-	public void setAvatar(String avatar) {
-		if (avatar != null && avatar != "") {
-			this.avatar = avatar;
-		}
-	}
+//	public String getAvatar() {
+//		return avatar;
+//	}
+//
+//	public void setAvatar(String avatar) {
+//		if (avatar != null && avatar != "") {
+//			this.avatar = avatar;
+//		}
+//	}
 	
 	// i added toString method
 	@Override
 		public String toString() {
-			return "UserEntity [userId=" + this.userId + ", role=" + this.role + ", username=" + this.username + ", avatar=" + this.avatar
-				+ "]";
+			return "UserEntity [userId=" + this.userId + ", role=" + this.role + ", username=" + this.username + "]";
+				
 		}
 }

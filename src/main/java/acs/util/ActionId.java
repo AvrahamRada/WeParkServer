@@ -6,7 +6,6 @@ public class ActionId {
 	private String id;
 	
 	public ActionId() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public ActionId(String domain, String id) {
@@ -30,6 +29,4 @@ public class ActionId {
 	public void setId(String id) {
 		this.id = id;
 	}
-
-	
 }

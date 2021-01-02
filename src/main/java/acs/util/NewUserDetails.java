@@ -4,10 +4,9 @@ public class NewUserDetails {
 	private String email;
 	private UserRole role;
 	private String username;
-	private String avatar;
+//	private String avatar;
 	
 	public NewUserDetails() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public NewUserDetails(String email, UserRole role, String username, String avatar) {
@@ -15,7 +14,7 @@ public class NewUserDetails {
 		this.email = email;
 		this.role = role;
 		this.username = username;
-		this.avatar = avatar;
+//		this.avatar = avatar;
 	}
 
 	public String getEmail() {
@@ -42,12 +41,12 @@ public class NewUserDetails {
 		this.username = username;
 	}
 
-	public String getAvatar() {
-		return avatar;
-	}
-
-	public void setAvatar(String avatar) {
-		this.avatar = avatar;
-	}
+//	public String getAvatar() {
+//		return avatar;
+//	}
+//
+//	public void setAvatar(String avatar) {
+//		this.avatar = avatar;
+//	}
 	
 }

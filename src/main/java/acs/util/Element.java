@@ -1,14 +1,10 @@
 package acs.util;
 
-
-
-
 public class Element {
 	
 	private ElementId elementId;
 	
 	public Element() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public Element(ElementId elementId) {
@@ -26,9 +22,8 @@ public class Element {
 
 	public void validation() {
 		if(this.elementId == null) {
-			throw new RuntimeException("elementId was not instantiate");
+			throw new RuntimeException("\n** ERROR ** \nelementId domain is NULL.");
 		}
 		elementId.validation();
 	}
-	
 }

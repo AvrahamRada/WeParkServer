@@ -8,7 +8,7 @@ public class UserBoundary {
 	private UserId userId;
 	private UserRole role;
 	private String username;
-	private String avatar;
+	//private String avatar;
 	
 	public UserBoundary() {
 		// TODO Auto-generated constructor stub
@@ -19,7 +19,7 @@ public class UserBoundary {
 		this.userId = userId;
 		this.role = role;
 		this.username = username;
-		this.avatar = avatar;
+//		this.avatar = avatar;
 	}
 
 	public UserId getUserId() {
@@ -46,13 +46,13 @@ public class UserBoundary {
 		this.username = username;
 	}
 
-	public String getAvatar() {
-		return avatar;
-	}
-
-	public void setAvatar(String avatar) {
-		this.avatar = avatar;
-	}
+//	public String getAvatar() {
+//		return avatar;
+//	}
+//
+//	public void setAvatar(String avatar) {
+//		this.avatar = avatar;
+//	}
 	
 	public void validation(){
 		
@@ -60,10 +60,10 @@ public class UserBoundary {
 			throw new RuntimeException("role was not instantiate");
 		if(username == null)
 			throw new RuntimeException("userName was not instantiate");
-		if(avatar == null)
-			throw new RuntimeException("avatar was not instantiate");
-		if(avatar == "")
-			throw new RuntimeException("avatar can't be an empty string");
+//		if(avatar == null)
+//			throw new RuntimeException("avatar was not instantiate");
+//		if(avatar == "")
+//			throw new RuntimeException("avatar can't be an empty string");
 		if(userId == null) {
 			throw new RuntimeException("userId was not instantiate");
 		}
@@ -72,7 +72,6 @@ public class UserBoundary {
 	
 	@Override
 	public String toString() {
-		return "UserBoundary [userId=" + this.userId + ", role=" + this.role + ", username=" + this.username + ", avatar=" + this.avatar
-				+ "]";
+		return "UserBoundary [userId=" + this.userId + ", role=" + this.role + ", username=" + this.username + "]";
 	}
 }

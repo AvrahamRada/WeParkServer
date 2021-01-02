@@ -1,7 +1,7 @@
 package acs.util;
 
-
 import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
+
 public class UserId {
 
 	private String domain; // DOMAIN VARCHAR(255)
@@ -40,15 +40,15 @@ public class UserId {
 	public void validation() {
 
 		if (this.domain == null) {
-			throw new RuntimeException("UserId domain was not instantiate");
+			throw new RuntimeException("\n** ERROR ** \nUserId.domain is NULL.\n");
 		}
 		
 		if (this.email == null) {
-			throw new RuntimeException("UserId email was not instantiate");
+			throw new RuntimeException("\n** ERROR ** \nUserId.email is NULL.\n");
 		}
 		
-		if (!new EmailValidator().isValid(this.email, null) || email.isEmpty() || this.email.contains("#")) {
-            throw new RuntimeException("The email is not in a valid format");
+		if (!new EmailValidator().isValid(email, null) || email.isEmpty() || email.contains("#")) {
+            throw new RuntimeException("\n** ERROR ** \nThe email is not in a valid format");
         }
 
 	}

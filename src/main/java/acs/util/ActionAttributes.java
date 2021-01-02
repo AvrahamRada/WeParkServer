@@ -5,7 +5,6 @@ public class ActionAttributes {
 	private String testAttribute;
 	
 	public ActionAttributes() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public ActionAttributes(String testAttribute) {
