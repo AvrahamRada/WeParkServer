@@ -12,6 +12,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 //import org.springframework.data.mongodb.core.mapping.Document;
 //
 //import acs.action.ActionAttributes;
@@ -21,7 +23,7 @@ import acs.util.Element;
 
 //@Entity
 //@Table(name="ACTIONS")
-//@Document(collection = "ACTIONS")
+@Document(collection = "ACTIONS")
 public class ActionEntity {
 	
 //	@Id

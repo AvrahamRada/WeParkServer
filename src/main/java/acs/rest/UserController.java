@@ -10,18 +10,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import acs.boundaries.UserBoundary;
+import acs.logic.UserService;
 //import acs.logic.UserService;
 import acs.util.NewUserDetails;
 import acs.util.UserId;
 
 @RestController
 public class UserController {
-//	private UserService userService;
-//	
-//	@Autowired
-//	public UserController(UserService userService) {
-//		this.userService = userService;
-//	}
+	private UserService userService;
+	
+	@Autowired
+	public UserController(UserService userService) {
+		this.userService = userService;
+	}
 	
 	/*--------------------- GET APIS ------------------- */
 
@@ -36,14 +37,15 @@ public class UserController {
 	
 	/*--------------------- POST APIS ------------------- */
 
-	//Create a new user
+	// Create a new user
 	@RequestMapping(path = "/acs/users",
 			method = RequestMethod.POST,
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserBoundary createNewUser(@RequestBody NewUserDetails input) {
 //		return userService.createUser(new UserBoundary(new UserId(" ", input.getEmail()), input.getRole(), input.getUsername(), input.getAvatar()));
-		return new UserBoundary();
+		return userService.createUser(new UserBoundary(new UserId(" ", input.getEmail()), input.getRole(), input.getUsername()));
+
 	}
 	
 	/*--------------------- PUT APIS ------------------- */

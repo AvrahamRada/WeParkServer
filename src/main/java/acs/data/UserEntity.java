@@ -6,6 +6,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 //import org.springframework.data.mongodb.core.mapping.Document;
 
 import acs.util.UserRole;
@@ -13,7 +15,7 @@ import acs.util.UserRole;
 
 //@Entity
 //@Table(name="USERS")
-//@Document(collection = "USERS")
+@Document(collection = "USERS")
 public class UserEntity {//USERS
 
 //	@Id

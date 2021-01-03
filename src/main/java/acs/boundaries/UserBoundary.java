@@ -11,10 +11,9 @@ public class UserBoundary {
 	//private String avatar;
 	
 	public UserBoundary() {
-		// TODO Auto-generated constructor stub
 	}
 
-	public UserBoundary(UserId userId, UserRole role, String username, String avatar) {
+	public UserBoundary(UserId userId, UserRole role, String username/*, String avatar*/) {
 		super();
 		this.userId = userId;
 		this.role = role;

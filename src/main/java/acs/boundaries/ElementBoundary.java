@@ -22,7 +22,6 @@ public class ElementBoundary {
 	private Map<String, Object> elementAttributes;
 
 	public ElementBoundary() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public ElementBoundary(ElementId elementId, String type, String name, Boolean active, Date createdTimestamp,

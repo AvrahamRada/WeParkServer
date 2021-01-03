@@ -3,7 +3,6 @@ package acs.logic.db;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,20 +13,67 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import acs.boundaries.UserBoundary;
+import acs.dal.UserDao;
 import acs.data.UserEntity;
 import acs.logic.UserService;
 //import acs.dal.UserDao;
 //import acs.data.UserRole;
 //import acs.logic.EnhancedUserService;
 //import acs.logic.util.UserConverter;
+import acs.logic.util.UserConverter;
 
 @Service
 public class DatabaseUserService implements UserService {
+	private String projectName;
+	private UserConverter userConverter;
+	private UserDao userDao;
+	
+	@Autowired
+	public DatabaseUserService(UserConverter userConverter, UserDao userDao) {
+		super();
+		this.userDao = userDao;
+		this.userConverter = userConverter;
+	}
+	
+	@PostConstruct
+	public void init() {
+	}
 
+	// inject configuration value or inject default value
+	@Value("${spring.application.name:defaulValue}")
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+	
 	@Override
 	public UserBoundary createUser(UserBoundary user) {
-		// TODO Auto-generated method stub
-		return null;
+		user.validation();
+		user.getUserId().setDomain(projectName);
+		
+		try {
+			getUserEntityFromDatabase(
+			userConverter.convertToEntityId(user.getUserId().getDomain(), user.getUserId().getEmail()),this.userDao);
+		} catch (RuntimeException re) { // If user is not exist we will create a new one.
+			UserEntity newUser = userConverter.toEntity(user);
+			this.userDao.save(newUser);
+			return user;
+		}
+		throw new RuntimeException("user is already exists in the system");
+	}
+	
+	public static UserEntity getUserEntityFromDatabase(String userId,UserDao userDao) {
+		return userDao.findById(userId).
+				orElseThrow(() -> new RuntimeException("could not find user by userId"));
+		
+		/*
+		 * Optional<> rv = this.userDao
+		 * 						.findById(id);
+		 * if(rv.isPresent()){
+		 * 		return rv.get(); 
+		 * } else {
+		 * 		throw new RuntimeException("could not find user by userId");
+		 * }
+		 */
 	}
 
 	@Override

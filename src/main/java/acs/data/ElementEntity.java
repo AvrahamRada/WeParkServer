@@ -16,6 +16,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 //import org.springframework.data.mongodb.core.mapping.DBRef;
 //import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -24,7 +26,7 @@ import acs.util.Location;
 
 //@Entity
 //@Table(name="ELEMENTS")
-//@Document(collection = "ELEMENTS")
+@Document(collection = "ELEMENTS")
 public class ElementEntity {
 
 //	@Id
