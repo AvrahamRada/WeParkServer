@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import acs.boundaries.ActionBoundary;
 import acs.boundaries.UserBoundary;
+import acs.logic.ActionService;
+import acs.logic.ElementService;
+import acs.logic.UserService;
 //import acs.logic.ActionService;
 //import acs.logic.ElementService;
 //import acs.logic.EnhancedActionService;
@@ -21,27 +24,29 @@ import acs.boundaries.UserBoundary;
 @RestController
 public class AdminController {
 
-//	private EnhancedUserService enhancedUserService;
-//	private EnhancedElementService enhancedElementService;
-//	private EnhancedActionService  enhancedActionService;
-//
-//	@Autowired
-//	public AdminController(EnhancedUserService userService, EnhancedElementService elementService, EnhancedActionService actionService) {
-//		this.enhancedUserService = userService;
-//		this.enhancedElementService = elementService;
-//		this.enhancedActionService = actionService;
-//
-//	}
+	private UserService userService;
+	private ElementService elementService;
+	private ActionService  actionService;
+
+	@Autowired
+	public AdminController(UserService userService, ElementService elementService, ActionService actionService) {
+		this.userService = userService;
+		this.elementService = elementService;
+		this.actionService = actionService;
+
+	}
 
 	/*--------------------- GET all users APIS ------------------- */
 
-	@RequestMapping(path = "/acs/admin/users/{adminDomain}/{adminEmail}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(path = "/acs/admin/users/{adminDomain}/{adminEmail}", 
+			method = RequestMethod.GET, 
+			produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserBoundary[] getAllUsers(@PathVariable("adminDomain") String adminDomain,
 			@PathVariable("adminEmail") String adminEmail,
 			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
 //		return this.enhancedUserService.getAllUsers(adminDomain, adminEmail, size, page).toArray(new UserBoundary[0]);
-		return new UserBoundary[] {};
+		return this.userService.getAllUsers(adminDomain, adminEmail, size, page).toArray(new UserBoundary[0]);
 	}
 
 	/*--------------------- GET all actions APIS ------------------- */
@@ -77,7 +82,7 @@ public class AdminController {
 	public void deleteAllUsers(@PathVariable("adminDomain") String adminDomain,
 			@PathVariable("adminEmail") String adminEmail) {
 		
-//		this.enhancedUserService.deleteAllUsers(adminDomain, adminEmail);
+		this.userService.deleteAllUsers(adminDomain, adminEmail);
 	}
 
 }

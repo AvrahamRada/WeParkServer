@@ -3,22 +3,18 @@ package acs.data;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-//import org.springframework.data.mongodb.core.mapping.Document;
-
 import acs.util.UserRole;
-// AR
 
 //@Entity
-//@Table(name="USERS")
 @Document(collection = "USERS")
 public class UserEntity {//USERS
 
-//	@Id
+	@Id
 	private String userId; // USER_ID PK VARCHAR(255)
 	private UserRole role; // ROLE VARCHAR(255) 
 	private String username; // USERNAME VARCHAR(255)
@@ -36,7 +32,7 @@ public class UserEntity {//USERS
 //		this.avatar = avatar;
 	}
 
-	//@Id
+	@Id
 	public String getUserId() {
 		return userId;
 	}
@@ -76,10 +72,10 @@ public class UserEntity {//USERS
 //		}
 //	}
 	
-	// i added toString method
-	@Override
-		public String toString() {
-			return "UserEntity [userId=" + this.userId + ", role=" + this.role + ", username=" + this.username + "]";
-				
-		}
+//	// i added toString method
+//	@Override
+//		public String toString() {
+//			return "UserEntity [userId=" + this.userId + ", role=" + this.role + ", username=" + this.username + "]";
+//				
+//		}
 }

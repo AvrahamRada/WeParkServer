@@ -69,8 +69,8 @@ public class UserBoundary {
 		userId.validation();
 	}
 	
-	@Override
-	public String toString() {
-		return "UserBoundary [userId=" + this.userId + ", role=" + this.role + ", username=" + this.username + "]";
-	}
+//	@Override
+//	public String toString() {
+//		return "UserBoundary [userId=" + this.userId + ", role=" + this.role + ", username=" + this.username + "]";
+//	}
 }

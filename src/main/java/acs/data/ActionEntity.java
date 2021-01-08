@@ -6,12 +6,13 @@ import java.util.Map;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.Id;
+//import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 //import org.springframework.data.mongodb.core.mapping.Document;
@@ -26,7 +27,7 @@ import acs.util.Element;
 @Document(collection = "ACTIONS")
 public class ActionEntity {
 	
-//	@Id
+	@Id
 	private String actionId; // ELEMENT_ID PK VARCHAR(255)
 	private String type; // ELEMENT_ID PK VARCHAR(255)
 	private String elementId ; //DOMAIN VARCHAR(255)
@@ -51,7 +52,7 @@ public class ActionEntity {
 		this.actionAttributes = actionAttributes;
 	}
 
-//	@Id
+	@Id
 	public String getActionId() {
 		return actionId;
 	}
@@ -104,11 +105,11 @@ public class ActionEntity {
 	public void setActionAttributes(Map<String,Object> actionAttributes) {
 		this.actionAttributes = actionAttributes;
 	}
-	
-	@Override
-	public String toString() {
-		return "ActionEntity [actionId=" + this.actionId + ", type=" + this.type + ", element=" + this.elementId + ", createdTimestamp="
-				+ this.createdTimestamp + ", invokedBy=" + this.invokedBy + ", actionAttributes=" + this.actionAttributes + "]";
-	}
+//	
+//	@Override
+//	public String toString() {
+//		return "ActionEntity [actionId=" + this.actionId + ", type=" + this.type + ", element=" + this.elementId + ", createdTimestamp="
+//				+ this.createdTimestamp + ", invokedBy=" + this.invokedBy + ", actionAttributes=" + this.actionAttributes + "]";
+//	}
 
 }

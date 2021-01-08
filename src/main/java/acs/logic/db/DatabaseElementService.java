@@ -16,15 +16,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import acs.boundaries.ElementBoundary;
 import acs.boundaries.ElementIdBoundary;
+import acs.dal.ElementDao;
+import acs.dal.UserDao;
 import acs.data.ElementEntity;
 import acs.data.UserEntity;
 import acs.logic.ElementNotFoundException;
 import acs.logic.ElementService;
 import acs.logic.UserNotFoundException;
+import acs.logic.util.ElementConverter;
+import acs.logic.util.UserConverter;
 import acs.util.CreatedBy;
 import acs.util.ElementId;
 import acs.util.Location;
 import acs.util.UserId;
+import acs.util.UserRole;
 //import acs.dal.ElementDao;
 //import acs.dal.UserDao;
 //import acs.logic.util.ElementConverter;
@@ -35,17 +40,96 @@ import acs.util.UserId;
 @Service
 public class DatabaseElementService implements ElementService {
 
+	private String projectName;
+	private ElementConverter elementConverter;
+	private UserConverter userConverter;
+	private ElementDao elementDao;
+	private UserDao userDao;
+
+	@Autowired
+	public DatabaseElementService(ElementConverter elementConverter, ElementDao elementDao, UserConverter userConverter,
+			UserDao userDao) {
+
+		super();
+		this.elementConverter = elementConverter;
+		this.elementDao = elementDao;
+		this.userConverter = userConverter;
+		this.userDao = userDao;
+	}
+
+	@PostConstruct
+	public void init() {
+	}
+
+	// inject configuration value or inject default value
+	@Value("${spring.application.name:demo}")
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+
+	public String getProjectName() {
+		return projectName;
+	}
+	
 	@Override
-	public ElementBoundary create(String managerDomain, String managerEmail, ElementBoundary element) {
-		// TODO Auto-generated method stub
-		return null;
+	public ElementBoundary create(String managerDomain, String managerEmail, ElementBoundary elementBoundary) {
+//		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
+		// Validate that the important element boundary fields are not null;
+
+		elementBoundary.validation();
+
+		// Set the element's domain to the project name and create the unique id for the
+		// element.
+		elementBoundary.setElementId(new ElementId(getProjectName(), UUID.randomUUID().toString()));
+
+		// Set the element's creation date.
+		elementBoundary.setCreatedTimestamp(new Date(System.currentTimeMillis()));
+
+		// Set element's manager details.
+		elementBoundary.setCreatedBy(new CreatedBy(new UserId(managerDomain, managerEmail)));
+
+		// Convert the element boundary to element entity
+		ElementEntity elementEntity = elementConverter.toEntity(elementBoundary);
+
+		// Add to database
+		this.elementDao.save(elementEntity);
+
+		return elementBoundary;
 	}
 
 	@Override
 	public ElementBoundary update(String managerDomain, String managerEmail, String elementDomain, String elementId,
 			ElementBoundary update) {
-		// TODO Auto-generated method stub
-		return null;
+//		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
+		// Fetching the specific element from DB.
+		ElementEntity foundedElement = this.elementDao
+				.findById(this.elementConverter.convertToEntityId(elementDomain, elementId))
+				.orElseThrow(() -> new ElementNotFoundException("could not find element"));
+
+		// Convert the input to entity before update the values in element entity that
+		// is in the DB.
+		ElementEntity updateEntity = elementConverter.toEntity(update);
+
+		// Update the element's values.
+		updateElementValues(foundedElement, updateEntity);
+
+		// save updated element to the database
+		this.elementDao.save(foundedElement);
+
+		// Convert the update entity to boundary and returns it.
+		return elementConverter.fromEntity(foundedElement);
+	}
+	
+	private void updateElementValues(ElementEntity toBeUpdatedEntity, ElementEntity inputEntity) {
+
+		// Copy the important values from update entity to toBeUpdateEntity only if they
+		// are not null
+		toBeUpdatedEntity.setActive(inputEntity.getActive());
+		toBeUpdatedEntity.setElementAttributes(inputEntity.getElementAttributes());
+		toBeUpdatedEntity.setLocation(inputEntity.getLocation());
+		toBeUpdatedEntity.setName(inputEntity.getName());
+		toBeUpdatedEntity.setType(inputEntity.getType());
+
 	}
 
 	@Override

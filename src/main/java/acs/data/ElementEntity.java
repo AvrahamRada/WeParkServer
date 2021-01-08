@@ -8,7 +8,7 @@ import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
+//import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 //import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -29,7 +30,7 @@ import acs.util.Location;
 @Document(collection = "ELEMENTS")
 public class ElementEntity {
 
-//	@Id
+	@Id
 	private String elementId;// ELEMENT_ID PK VARCHAR(255)
 	private String type; // TYPE VARCHAR(255)
 	private String name; // NAME VARCHAR(255)
@@ -67,7 +68,7 @@ public class ElementEntity {
 		this.elementAttributes = elementAttributes;
 	}
 	
-//	@Id
+	@Id
 	public String getElementId() {
 		return elementId;
 	}
@@ -177,11 +178,11 @@ public class ElementEntity {
 		this.origin = origin;
 	}
 	
-	// i added toString method
-	@Override
-	public String toString() {
-		return "ElementEntity [elementId=" + this.elementId + ", type=" + this.type + ", name=" + this.name + ", active=" + this.active
-				+ ", creacteTimestamp=" + this.createdTimestamp + ", createdBy=" + this.createdBy + ", location=" + this.location
-				+ ", elementAttributes=" + this.elementAttributes + "]";
-	}
+//	// i added toString method
+//	@Override
+//	public String toString() {
+//		return "ElementEntity [elementId=" + this.elementId + ", type=" + this.type + ", name=" + this.name + ", active=" + this.active
+//				+ ", creacteTimestamp=" + this.createdTimestamp + ", createdBy=" + this.createdBy + ", location=" + this.location
+//				+ ", elementAttributes=" + this.elementAttributes + "]";
+//	}
 }

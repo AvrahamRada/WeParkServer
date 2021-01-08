@@ -31,8 +31,8 @@ public class UserController {
 			method = RequestMethod.GET,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserBoundary login(@PathVariable("userDomain") String userDomain, @PathVariable("userEmail") String userEmail) {
-//		return userService.login(userDomain, userEmail);
-		return new UserBoundary();
+		return userService.login(userDomain, userEmail);
+//		return new UserBoundary();
 	}
 	
 	/*--------------------- POST APIS ------------------- */
@@ -44,7 +44,7 @@ public class UserController {
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserBoundary createNewUser(@RequestBody NewUserDetails input) {
 //		return userService.createUser(new UserBoundary(new UserId(" ", input.getEmail()), input.getRole(), input.getUsername(), input.getAvatar()));
-		return userService.createUser(new UserBoundary(new UserId(" ", input.getEmail()), input.getRole(), input.getUsername()));
+		return userService.createUser(new UserBoundary(new UserId("", input.getEmail()), input.getRole(), input.getUsername()));
 
 	}
 	
@@ -56,7 +56,7 @@ public class UserController {
 			consumes = MediaType.APPLICATION_JSON_VALUE)
 	public void updateUserDetails(@PathVariable("userDomain") String userDomain, 
 			@PathVariable("userEmail") String userEmail, @RequestBody UserBoundary update) {
-//		userService.updateUser(userDomain, userEmail, update);
+		userService.updateUser(userDomain, userEmail, update);
 	}
 	
 }
