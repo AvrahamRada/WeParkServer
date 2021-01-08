@@ -73,7 +73,7 @@ public class DatabaseElementService implements ElementService {
 	
 	@Override
 	public ElementBoundary create(String managerDomain, String managerEmail, ElementBoundary elementBoundary) {
-//		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
+		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
 		// Validate that the important element boundary fields are not null;
 
 		elementBoundary.validation();
@@ -100,7 +100,7 @@ public class DatabaseElementService implements ElementService {
 	@Override
 	public ElementBoundary update(String managerDomain, String managerEmail, String elementDomain, String elementId,
 			ElementBoundary update) {
-//		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
+		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
 		// Fetching the specific element from DB.
 		ElementEntity foundedElement = this.elementDao
 				.findById(this.elementConverter.convertToEntityId(elementDomain, elementId))
@@ -133,17 +133,65 @@ public class DatabaseElementService implements ElementService {
 	}
 
 	@Override
+	public ElementBoundary getSpecificElement(String userDomain, String userEmail, String elementDomain, String elementId) {
+		ElementEntity foundedElement;
+		UserEntity userEntity = DatabaseUserService
+				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
+
+		foundedElement = getSpecificElementWithPermission(
+				this.elementConverter.convertToEntityId(elementDomain, elementId), userEntity.getRole());
+
+		return elementConverter.fromEntity(foundedElement);
+	}
+	
+	private ElementEntity getSpecificElementWithPermission(String elementId, UserRole role) {
+		if (role == UserRole.MANAGER) {
+			// Fetching the specific element from DB.
+			return findActiveOrInActiveElement(elementDao, elementId);
+		} else if (role == UserRole.PLAYER) {
+			return findActiveElement(elementDao, elementId);
+	
+		} else { // Role is ADMIN
+			throw new UserNotFoundException("Not valid operation for ADMIN user");
+		}
+	
+	}
+	
+	public static ElementEntity findActiveElement(ElementDao elementDao, String elementId) {
+		List<ElementEntity> elements = elementDao.findOneByElementIdAndActive(elementId,true,
+				PageRequest.of(0, 1, Direction.ASC, "elementId"));
+		if(elements.size() == 0 ) {
+			throw new ElementNotFoundException("could not find element");
+		}
+		return elements.get(0);	
+	}
+	
+	public static ElementEntity findActiveOrInActiveElement(ElementDao elementDao, String elementId) {
+		return elementDao.findById(elementId).orElseThrow(() -> new ElementNotFoundException("could not find element"));
+	}
+	
+	@Override
 	public List<ElementBoundary> getAll(String userDomain, String userEmail) {
-		// TODO Auto-generated method stub
+		//	UserEntity userEntity = DatabaseUserService
+		//	.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
+		//if (userEntity.getRole() == UserRole.MANAGER) {
+		//
+		//return StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
+		//		.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
+		//		.collect(Collectors.toList());
+		//} else if (userEntity.getRole() == UserRole.PLAYER) {
+		//
+		//return StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
+		//		.filter(user -> user.getActive()).map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
+		//		.collect(Collectors.toList());
+		//} else { // Role is ADMIN
+		//
+		//throw new UserNotFoundException("Not valid operation for ADMIN user");
+		//}
 		return null;
 	}
 
-	@Override
-	public ElementBoundary getSpecificElement(String userDomain, String userEmail, String elementDomain,
-			String elementId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 
 	@Override
 	public void deleteAllElements(String adminDomain, String adminEmail) {
@@ -151,52 +199,113 @@ public class DatabaseElementService implements ElementService {
 		
 	}
 
-	@Override
-	public void bindParentElementToChildElement(String managerDomain, String managerEmail, String elementDomain,
-			String elementId, ElementIdBoundary input) {
-		// TODO Auto-generated method stub
-		
-	}
+//	@Override
+//	public void bindParentElementToChildElement(String managerDomain, String managerEmail, String elementDomain,
+//			String elementId, ElementIdBoundary input) {
+//		// TODO Auto-generated method stub
+//		
+//	}
 
-	@Override
-	public Collection<ElementBoundary> getAllChildrenElements(String userDomain, String userEmail, String elementDomain,
-			String elementId, int size, int page) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Collection<ElementBoundary> getAllChildrenElements(String userDomain, String userEmail, String elementDomain,
+//			String elementId, int size, int page) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
-	@Override
-	public Collection<ElementBoundary> getAllOriginsElements(String userDomain, String userEmail, String elementDomain,
-			String elementId, int size, int page) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Collection<ElementBoundary> getAllOriginsElements(String userDomain, String userEmail, String elementDomain,
+//			String elementId, int size, int page) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	@Override
 	public List<ElementBoundary> getAll(String userDomain, String userEmail, int size, int page) {
-		// TODO Auto-generated method stub
-		return null;
+		UserEntity userEntity = DatabaseUserService.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
+		List<ElementEntity> entities;
+
+		if (userEntity.getRole() == UserRole.MANAGER) {
+			entities = this.elementDao.findAll(PageRequest.of(page, size, Direction.ASC, "elementId")).getContent();
+		} else if (userEntity.getRole() == UserRole.PLAYER) {
+			entities = this.elementDao.findAllByActive(true, PageRequest.of(page, size, Direction.ASC, "elementId"));
+		} else {
+			throw new UserNotFoundException("Not valid operation for ADMIN user");
+		}
+		
+		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
 	}
 
 	@Override
-	public List<ElementBoundary> getAllElementsByName(String userDomain, String userEmail, String name, int size,
-			int page) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<ElementBoundary> getAllElementsByName(String userDomain, String userEmail, String name, int size, int page) {
+		UserEntity userEntity = DatabaseUserService.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
+		
+		List<ElementEntity> entities;
+		
+		if (userEntity.getRole() == UserRole.MANAGER) {
+			entities = this.elementDao.findAllByNameLike(name, PageRequest.of(page, size, Direction.ASC, "elementId"));
+		} else if (userEntity.getRole() == UserRole.PLAYER) {
+			entities = this.elementDao.findAllByNameLikeAndActive(name, true,
+					PageRequest.of(page, size, Direction.ASC, "elementId"));
+		} else {
+			throw new UserNotFoundException("Not valid operation for ADMIN user");
+		}
+		
+		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
 	}
 
 	@Override
-	public List<ElementBoundary> getAllElementsByType(String userDomain, String userEmail, String type, int size,
-			int page) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<ElementBoundary> getAllElementsByType(String userDomain, String userEmail, String type, int size, int page) {
+		
+		List<ElementEntity> entities;
+		UserEntity userEntity = DatabaseUserService
+				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
+
+		if (userEntity.getRole() == UserRole.MANAGER) {
+			entities = this.elementDao.findAllByTypeLike(type, PageRequest.of(page, size, Direction.ASC, "elementId"));
+		} else if (userEntity.getRole() == UserRole.PLAYER) {
+			entities = this.elementDao.findAllByTypeLikeAndActive(type, true,
+					PageRequest.of(page, size, Direction.ASC, "elementId"));
+		} else {
+			throw new UserNotFoundException("Not valid operation for ADMIN user");
+		}
+
+		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<ElementBoundary> getAllElementsByLocation(String userDomain, String userEmail, String lat, String lng,
 			String distance, int size, int page) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		double distanceNum = Double.parseDouble(distance);
+		double latNum = Double.parseDouble(lat);
+		double lngNum = Double.parseDouble(lng);
+		
+		if(distanceNum < 0) {
+			throw new RuntimeException("Distance can not be negative.");
+		}
+
+		List<ElementEntity> entities;
+		Double minLat, maxLat, minLng, maxLng;
+		UserEntity userEntity = DatabaseUserService
+				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
+
+		minLat = latNum - distanceNum;
+		maxLat = latNum + distanceNum;
+		minLng = lngNum - distanceNum;
+		maxLng = lngNum + distanceNum;
+
+		if (userEntity.getRole() == UserRole.MANAGER) {
+			entities = this.elementDao.findAllByLocation_LatBetweenAndLocation_LngBetween(minLat, maxLat, minLng,
+					maxLng, PageRequest.of(page, size, Direction.ASC, "elementId"));
+		} else if (userEntity.getRole() == UserRole.PLAYER) {
+			entities = this.elementDao.findAllByLocation_LatBetweenAndLocation_LngBetweenAndActive(minLat, maxLat,
+					minLng, maxLng, true, PageRequest.of(page, size, Direction.ASC, "elementId"));
+		} else {
+			throw new UserNotFoundException("Not valid operation for ADMIN user");
+		}
+
+		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
 	}
 //	private String projectName;
 //	private ElementConverter elementConverter;
