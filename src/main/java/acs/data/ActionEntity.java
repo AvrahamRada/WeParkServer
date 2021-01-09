@@ -28,14 +28,14 @@ import acs.util.Element;
 public class ActionEntity {
 	
 	@Id
-	private String actionId; // ELEMENT_ID PK VARCHAR(255)
-	private String type; // ELEMENT_ID PK VARCHAR(255)
-	private String elementId ; //DOMAIN VARCHAR(255)
-							//ID VARCHAR(255)
-	private Date createdTimestamp; // CREATED_TIME_STAMP TIMESTAMP
-	private String invokedBy; // DOMAIN VARCHAR(255)
-								// EMAIL VARCHAR(255)
-	private Map<String,Object> actionAttributes; // ACTION_ATTRIBUTES CLOB
+	private String actionId; 						// ELEMENT_ID PK VARCHAR(255)
+	private String type; 							// ELEMENT_ID PK VARCHAR(255)
+	private String elementId ; 						// DOMAIN VARCHAR(255)
+													// ID VARCHAR(255)
+	private Date createdTimestamp; 					// CREATED_TIME_STAMP TIMESTAMP
+	private String invokedBy; 						// DOMAIN VARCHAR(255)
+													// EMAIL VARCHAR(255)
+	private Map<String,Object> actionAttributes; 	// ACTION_ATTRIBUTES CLOB
 	
 	public ActionEntity() {
 		// TODO Auto-generated constructor stub

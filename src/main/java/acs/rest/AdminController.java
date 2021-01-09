@@ -56,8 +56,8 @@ public class AdminController {
 			@PathVariable("adminEmail") String adminEmail,
 			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
-//		return this.enhancedActionService.getAllActions(adminDomain, adminEmail, size, page).toArray(new ActionBoundary[0]);
-		return new ActionBoundary[] {};
+		return this.actionService.getAllActions(adminDomain, adminEmail, size, page).toArray(new ActionBoundary[0]);
+//		return new ActionBoundary[] {};
 
 	}
 
@@ -66,14 +66,14 @@ public class AdminController {
 	@RequestMapping(path = "/acs/admin/actions/{adminDomain}/{adminEmail}", method = RequestMethod.DELETE)
 	public void deleteAllActions(@PathVariable("adminDomain") String adminDomain,
 			@PathVariable("adminEmail") String adminEmail) {
-//		this.enhancedActionService.deleteAllActions(adminDomain, adminEmail);
+		this.actionService.deleteAllActions(adminDomain, adminEmail);
 	}
 
 	@RequestMapping(path = "/acs/admin/elements/{adminDomain}/{adminEmail}", method = RequestMethod.DELETE)
 	public void deleteAllElements(@PathVariable("adminDomain") String adminDomain,
 			@PathVariable("adminEmail") String adminEmail) {
 
-//		this.enhancedElementService.deleteAllElements(adminDomain, adminEmail);
+		this.elementService.deleteAllElements(adminDomain, adminEmail);
 	}
 
 	

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import acs.boundaries.ActionBoundary;
 import acs.boundaries.UserBoundary;
+import acs.logic.ActionService;
 //import acs.logic.ActionService;
 //import acs.logic.UserService;
 import acs.util.UserId;
@@ -17,16 +18,19 @@ import acs.util.UserId;
 @RestController
 public class ActionController {
 
-//	private ActionService actionService;
-//
-//	@Autowired
-//	public ActionController(ActionService actionService) {
-//		this.actionService = actionService;
-//	}
+	private ActionService actionService;
 
-	@RequestMapping(path = "/acs/actions", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@Autowired
+	public ActionController(ActionService actionService) {
+		this.actionService = actionService;
+	}
+
+	@RequestMapping(path = "/acs/actions", 
+			method = RequestMethod.POST, 
+			consumes = MediaType.APPLICATION_JSON_VALUE, 
+			produces = MediaType.APPLICATION_JSON_VALUE)
 	public Object invokeAction(@RequestBody ActionBoundary input) {
-//		return actionService.invokeAction(input);
-		return new Object();
+		return actionService.invokeAction(input);
+//		return new Object();
 	}
 }

@@ -195,8 +195,9 @@ public class DatabaseElementService implements ElementService {
 
 	@Override
 	public void deleteAllElements(String adminDomain, String adminEmail) {
-		// TODO Auto-generated method stub
-		
+		DatabaseUserService.checkRole(adminDomain, adminEmail, UserRole.MANAGER, userDao, userConverter);
+		// Clear all elements from DB.
+		this.elementDao.deleteAll();		
 	}
 
 //	@Override

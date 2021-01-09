@@ -159,7 +159,6 @@ public class DatabaseUserService implements UserService {
 			System.out.println("User is not " + role);
 			throw new RuntimeException("User is not " + role);
 		}
-	
 	}	
 
 	@Override

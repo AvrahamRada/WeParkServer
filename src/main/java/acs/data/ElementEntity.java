@@ -31,16 +31,17 @@ import acs.util.Location;
 public class ElementEntity {
 
 	@Id
-	private String elementId;// ELEMENT_ID PK VARCHAR(255)
-	private String type; // TYPE VARCHAR(255)
-	private String name; // NAME VARCHAR(255)
-	private Boolean active; // ACTIVE BOOLEAN
-	private Date createdTimestamp; // CREATED_TIME_STAMP TIMESTAMP
-	private String createdBy; //DOMAIN VARCHAR(255)
-								//ID VARCHAR(255)
-	private Location location; //LAT DOUBLE
-							  // LNG DOUBLE
-	
+	private String elementId;						// ELEMENT_ID PK VARCHAR(255)
+	private String type; 							// TYPE VARCHAR(255)
+	private String name; 							// NAME VARCHAR(255)
+	private Boolean active; 						// ACTIVE BOOLEAN
+	private Date createdTimestamp; 					// CREATED_TIME_STAMP TIMESTAMP
+	private String createdBy; 						// DOMAIN VARCHAR(255)
+													// ID VARCHAR(255)
+	private Location location; 						// LAT DOUBLE
+							  						// LNG DOUBLE
+	private Map<String, Object> elementAttributes; 	// ELEMENT_ATTRIBUTES CLOB
+
 	// add another entity collection related to this one using ONE-TO-MANY relationship
 //	@DBRef(lazy = true)
 	private Set<ElementEntity> childrenElements;
@@ -49,7 +50,6 @@ public class ElementEntity {
 //	@DBRef(lazy = true)
 	private ElementEntity origin;
 		
-	private Map<String, Object> elementAttributes; // ELEMENT_ATTRIBUTES CLOB
 
 	public ElementEntity() {
 		this.location = new Location();
