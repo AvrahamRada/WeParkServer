@@ -101,6 +101,8 @@ public class DatabaseActionService implements ActionService {
 	private Object operateAction(ActionBoundary action) {
 
 		ElementEntity element = null;
+		List<ElementBoundary> allElements;
+		int index;
 
 		switch (action.getType()) {
 			case PARK:
@@ -109,62 +111,56 @@ public class DatabaseActionService implements ActionService {
 						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
 				
 				// Get all elements
+				allElements = StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
+																.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
+																.collect(Collectors.toList());
+				index = -1;
+				// Find specific element that we need
+				for (int i = 0; i < allElements.size(); i++) {
+					if(isInside((double)(action.getActionAttributes().get("lat")),
+								(double)(action.getActionAttributes().get("lng")),
+								allElements.get(i))) {
+						index = i;
+						break;
+					}
+				}
+				
+				if(index < 0 || index >8)
+					throw new RuntimeException("** ERROR ** || user's location is not valid (out of range)");
+				element = this.elementConverter.toEntity(allElements.get(index));
+				element.getElementAttributes().put("servers",((int)(element.getElementAttributes().get("servers"))+1));
+				
+//				// update the element in the DB.
+				elementDao.save(element);
+				return action;
+	
+			case UNPARK:
+				// Checking if the user that invoke this action is a player: YES - continue, NO - runtime Exception
+				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
+						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
+				
+				// Get all elements
 				List<ElementBoundary> allElementsFromDatabase = StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
 																.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
 																.collect(Collectors.toList());
-				int aindex = -1;
+				index = -1;
 				// Find specific element that we need
 				for (int i = 0; i < allElementsFromDatabase.size(); i++) {
 					if(isInside((double)(action.getActionAttributes().get("lat")),
 								(double)(action.getActionAttributes().get("lng")),
 								allElementsFromDatabase.get(i))) {
-						aindex = i;
+						index = i;
 						break;
 					}
 				}
 				
-				if(aindex<0 || aindex >8)
+				if(index < 0 || index >8)
 					throw new RuntimeException("** ERROR ** || user's location is not valid (out of range)");
-				element = this.elementConverter.toEntity(allElementsFromDatabase.get(aindex));
-//				element.getElementAttributes().put()
+				element = this.elementConverter.toEntity(allElementsFromDatabase.get(index));
+				element.getElementAttributes().put("servers",((int)(element.getElementAttributes().get("servers"))-1));
 				
-				
-//				// Checking if the user that invoke this action is a player: YES - continue, NO - runtime Exception
-//				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
-//						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
-//				
-//				// Find and get the element the we want to perform this Action about 
-//				element = DatabaseElementService.findActiveElement(elementDao, this.elementConverter.convertToEntityId(
-//						action.getElement().getElementId().getDomain(), action.getElement().getElementId().getId()));
-//				
-//				// update element attribute of isTaken to TRUE
-//				element.getElementAttributes().put(IS_TAKEN, true);
 //				// update the element in the DB.
-//				elementDao.save(element);
-				return action;
-	
-			case UNPARK:
-//				// Checking if the user that invoke this action is a player: YES - continue, NO - runtime Exception
-//				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
-//						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
-//				
-//				// Find all actions that the same person that invoke this action, invoked, and of type: PARK, and get the last one sorted by createdTimestamp
-//				List<ActionEntity> lastParkAction = actionDao.findOneByInvokedByAndTypeLike(
-//						actionConverter.convertToEntityId(action.getInvokedBy().getUserId().getDomain(),
-//								action.getInvokedBy().getUserId().getEmail()),
-//						PARK, PageRequest.of(0, 1, Direction.DESC, "createdTimestamp"));
-//				if (lastParkAction.size() == 0) {
-//					throw new RuntimeException("Player did not parked yet.");
-//				}
-//				// Get the element(domain+id) of the player that already parked
-//				String elementId = lastParkAction.get(0).getElement();
-//				// Get the hole element( ElementEntity)
-//				element = elementDao.findById(elementId)
-//						.orElseThrow(() -> new ElementNotFoundException("could not find element"));
-//				// update element attribute of isTaken to TRUE
-//				element.getElementAttributes().put(IS_TAKEN, false);
-//				// update the element in the DB.
-//				elementDao.save(element);
+				elementDao.save(element);
 				return action;
 	
 				// This case is performed when we create a City = create user MANAGER
@@ -242,10 +238,10 @@ public class DatabaseActionService implements ActionService {
 						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
 				
 				// Get all elements
-				List<ElementBoundary> allElements = StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
+				allElements = StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
 																.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
 																.collect(Collectors.toList());
-				int index = -1;
+				index = -1;
 				// Find specific element that we need
 				for (int i = 0; i < allElements.size(); i++) {
 					if(isInside((double)(action.getActionAttributes().get("lat")),
