@@ -35,22 +35,22 @@ public interface ElementDao extends MongoRepository<ElementEntity,String>{ //ext
 				@Param("active") Boolean active, 
 								Pageable pageable);
 	
-	// SELECT * FROM ELEMENTS WHERE ... LIKE ?
-	public List<ElementEntity> findAllByLocation_LatBetweenAndLocation_LngBetween(
-			@Param("minLat") Double minLat,
-			@Param("maxLat") Double maxLat,
-			@Param("minLng") Double minLng,
-			@Param("maxLng") Double maxLng, 
-			Pageable pageable);
-	
-	// SELECT * FROM ELEMENTS WHERE ... LIKE AND ACTIVE IS TRUE ?
-	public List<ElementEntity> findAllByLocation_LatBetweenAndLocation_LngBetweenAndActive(
-			@Param("minLat") Double minLat,
-			@Param("maxLat") Double maxLat,
-			@Param("minLng") Double minLng,
-			@Param("maxLng") Double maxLng,
-			@Param("active") Boolean active, 
-			Pageable pageable);
+//	// SELECT * FROM ELEMENTS WHERE ... LIKE ?
+//	public List<ElementEntity> findAllByLocation_LatBetweenAndLocation_LngBetween(
+//			@Param("minLat") Double minLat,
+//			@Param("maxLat") Double maxLat,
+//			@Param("minLng") Double minLng,
+//			@Param("maxLng") Double maxLng, 
+//			Pageable pageable);
+//	
+//	// SELECT * FROM ELEMENTS WHERE ... LIKE AND ACTIVE IS TRUE ?
+//	public List<ElementEntity> findAllByLocation_LatBetweenAndLocation_LngBetweenAndActive(
+//			@Param("minLat") Double minLat,
+//			@Param("maxLat") Double maxLat,
+//			@Param("minLng") Double minLng,
+//			@Param("maxLng") Double maxLng,
+//			@Param("active") Boolean active, 
+//			Pageable pageable);
 	
 	
 	// SELECT * FROM ELEMENTS WHERE ACTIVE IS TRUE ?
@@ -64,12 +64,12 @@ public interface ElementDao extends MongoRepository<ElementEntity,String>{ //ext
 				@Param("active") Boolean active,
 								Pageable pageable);
 		
-		public List<ElementEntity> findAllByOrigin(
-				@Param("origin") ElementEntity origin,
-								 Pageable pageable);
-		
-		public List<ElementEntity> findAllByOriginAndActive(
-				@Param("origin") ElementEntity origin,
-				@Param("active") Boolean active,
-								Pageable pageable);
+//		public List<ElementEntity> findAllByOrigin(
+//				@Param("origin") ElementEntity origin,
+//								 Pageable pageable);
+//		
+//		public List<ElementEntity> findAllByOriginAndActive(
+//				@Param("origin") ElementEntity origin,
+//				@Param("active") Boolean active,
+//								Pageable pageable);
 }

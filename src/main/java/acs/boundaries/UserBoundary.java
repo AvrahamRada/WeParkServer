@@ -8,17 +8,17 @@ public class UserBoundary {
 	private UserId userId;
 	private UserRole role;
 	private String username;
-	//private String avatar;
+	private String licensePlate;
 	
 	public UserBoundary() {
 	}
 
-	public UserBoundary(UserId userId, UserRole role, String username/*, String avatar*/) {
+	public UserBoundary(UserId userId, UserRole role, String username, String licensePlate) {
 		super();
 		this.userId = userId;
 		this.role = role;
 		this.username = username;
-//		this.avatar = avatar;
+		this.licensePlate = licensePlate;
 	}
 
 	public UserId getUserId() {
@@ -45,13 +45,13 @@ public class UserBoundary {
 		this.username = username;
 	}
 
-//	public String getAvatar() {
-//		return avatar;
-//	}
-//
-//	public void setAvatar(String avatar) {
-//		this.avatar = avatar;
-//	}
+	public String getLicensePlate() {
+		return licensePlate;
+	}
+
+	public void setLicensePlate(String licensePlate) {
+		this.licensePlate = licensePlate;
+	}
 	
 	public void validation(){
 		
@@ -59,10 +59,10 @@ public class UserBoundary {
 			throw new RuntimeException("role was not instantiate");
 		if(username == null)
 			throw new RuntimeException("userName was not instantiate");
-//		if(avatar == null)
-//			throw new RuntimeException("avatar was not instantiate");
-//		if(avatar == "")
-//			throw new RuntimeException("avatar can't be an empty string");
+		if(licensePlate == null)
+			throw new RuntimeException("licensePlate was not instantiate");
+		if(licensePlate == "")
+			throw new RuntimeException("licensePlate can't be an empty string");
 		if(userId == null) {
 			throw new RuntimeException("userId was not instantiate");
 		}

@@ -19,5 +19,5 @@ public interface ElementService {
 	public List<ElementBoundary> getAll(String userDomain, String userEmail, int size, int page);
 	public List<ElementBoundary> getAllElementsByName(String userDomain,String userEmail,String name, int size, int page);
 	public List<ElementBoundary> getAllElementsByType(String userDomain,String userEmail,String type, int size, int page);
-	public List<ElementBoundary> getAllElementsByLocation(String userDomain,String userEmail,String lat, String lng, String distance, int size, int page);
+//	public List<ElementBoundary> getAllElementsByLocation(String userDomain,String userEmail,String lat, String lng, String distance, int size, int page);
 }

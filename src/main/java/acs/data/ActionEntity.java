@@ -38,7 +38,6 @@ public class ActionEntity {
 	private Map<String,Object> actionAttributes; 	// ACTION_ATTRIBUTES CLOB
 	
 	public ActionEntity() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public ActionEntity(String actionId, String type, String elementId, Date createdTimestamp, String invokedBy,

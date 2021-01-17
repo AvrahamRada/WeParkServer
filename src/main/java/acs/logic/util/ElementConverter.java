@@ -18,7 +18,7 @@ public class ElementConverter extends Converter {
 		rv.setCreatedTimestamp(entity.getCreatedTimestamp());
 		rv.setElementAttributes(entity.getElementAttributes());
 		rv.setElementId(convertToElementId(entity.getElementId()));
-		rv.setLocation(entity.getLocation());
+//		rv.setLocation(entity.getLocation());
 		rv.setName(entity.getName());
 		rv.setType(entity.getType());
 		return rv;
@@ -34,7 +34,7 @@ public class ElementConverter extends Converter {
 		rv.setElementAttributes(boundary.getElementAttributes());
 		rv.setElementId(convertToEntityId(boundary.getElementId().getDomain(),
 				boundary.getElementId().getId()));
-		rv.setLocation(boundary.getLocation());
+//		rv.setLocation(boundary.getLocation());
 		rv.setName(boundary.getName());
 		rv.setType(boundary.getType());
 

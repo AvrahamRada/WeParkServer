@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -126,7 +128,7 @@ public class DatabaseElementService implements ElementService {
 		// are not null
 		toBeUpdatedEntity.setActive(inputEntity.getActive());
 		toBeUpdatedEntity.setElementAttributes(inputEntity.getElementAttributes());
-		toBeUpdatedEntity.setLocation(inputEntity.getLocation());
+//		toBeUpdatedEntity.setLocation(inputEntity.getLocation());
 		toBeUpdatedEntity.setName(inputEntity.getName());
 		toBeUpdatedEntity.setType(inputEntity.getType());
 
@@ -166,29 +168,38 @@ public class DatabaseElementService implements ElementService {
 		return elements.get(0);	
 	}
 	
+//	public static ElementEntity findActiveElement(ElementDao elementDao, String elementId) {
+//		List<ElementEntity> elements = elementDao.findOneByElementIdAndActive(elementId,true,
+//				PageRequest.of(0, 1, Direction.ASC, "elementId"));
+//		if(elements.size() == 0 ) {
+//			throw new ElementNotFoundException("could not find element");
+//		}
+//		return elements.get(0);	
+//	}
+	
 	public static ElementEntity findActiveOrInActiveElement(ElementDao elementDao, String elementId) {
 		return elementDao.findById(elementId).orElseThrow(() -> new ElementNotFoundException("could not find element"));
 	}
 	
 	@Override
 	public List<ElementBoundary> getAll(String userDomain, String userEmail) {
-		//	UserEntity userEntity = DatabaseUserService
-		//	.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-		//if (userEntity.getRole() == UserRole.MANAGER) {
-		//
-		//return StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
-		//		.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
-		//		.collect(Collectors.toList());
-		//} else if (userEntity.getRole() == UserRole.PLAYER) {
-		//
-		//return StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
-		//		.filter(user -> user.getActive()).map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
-		//		.collect(Collectors.toList());
-		//} else { // Role is ADMIN
-		//
-		//throw new UserNotFoundException("Not valid operation for ADMIN user");
-		//}
-		return null;
+			UserEntity userEntity = DatabaseUserService.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
+		if (userEntity.getRole() == UserRole.MANAGER) {
+			return StreamSupport
+					.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
+					.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
+					.collect(Collectors.toList());
+		// For now MANAGER & MANAGER will get the same info without permissions
+		} else if (userEntity.getRole() == UserRole.MANAGER) {
+			return StreamSupport
+					.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
+//					.filter(user -> user.getActive())
+					.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
+					.collect(Collectors.toList());
+		} else { // Role is ADMIN
+			throw new UserNotFoundException("Not valid operation for ADMIN user");
+		}
+//		return null;
 	}
 
 
@@ -274,40 +285,43 @@ public class DatabaseElementService implements ElementService {
 		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
 	}
 
-	@Override
-	public List<ElementBoundary> getAllElementsByLocation(String userDomain, String userEmail, String lat, String lng,
-			String distance, int size, int page) {
-		
-		double distanceNum = Double.parseDouble(distance);
-		double latNum = Double.parseDouble(lat);
-		double lngNum = Double.parseDouble(lng);
-		
-		if(distanceNum < 0) {
-			throw new RuntimeException("Distance can not be negative.");
-		}
-
-		List<ElementEntity> entities;
-		Double minLat, maxLat, minLng, maxLng;
-		UserEntity userEntity = DatabaseUserService
-				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-
-		minLat = latNum - distanceNum;
-		maxLat = latNum + distanceNum;
-		minLng = lngNum - distanceNum;
-		maxLng = lngNum + distanceNum;
-
-		if (userEntity.getRole() == UserRole.MANAGER) {
-			entities = this.elementDao.findAllByLocation_LatBetweenAndLocation_LngBetween(minLat, maxLat, minLng,
-					maxLng, PageRequest.of(page, size, Direction.ASC, "elementId"));
-		} else if (userEntity.getRole() == UserRole.PLAYER) {
-			entities = this.elementDao.findAllByLocation_LatBetweenAndLocation_LngBetweenAndActive(minLat, maxLat,
-					minLng, maxLng, true, PageRequest.of(page, size, Direction.ASC, "elementId"));
-		} else {
-			throw new UserNotFoundException("Not valid operation for ADMIN user");
-		}
-
-		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
-	}
+//	@Override
+//	public List<ElementBoundary> getAllElementsByLocation(String userDomain, String userEmail, String lat, String lng,
+//			String distance, int size, int page) {
+//		
+//		double distanceNum = Double.parseDouble(distance);
+//		double latNum = Double.parseDouble(lat);
+//		double lngNum = Double.parseDouble(lng);
+//		
+//		if(distanceNum < 0) {
+//			throw new RuntimeException("Distance can not be negative.");
+//		}
+//
+//		List<ElementEntity> entities;
+//		Double minLat, maxLat, minLng, maxLng;
+//		UserEntity userEntity = DatabaseUserService
+//				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
+//
+//		minLat = latNum - distanceNum;
+//		maxLat = latNum + distanceNum;
+//		minLng = lngNum - distanceNum;
+//		maxLng = lngNum + distanceNum;
+//
+//		if (userEntity.getRole() == UserRole.MANAGER) {
+//			entities = this.elementDao.findAllByLocation_LatBetweenAndLocation_LngBetween(minLat, maxLat, minLng,
+//					maxLng, PageRequest.of(page, size, Direction.ASC, "elementId"));
+//		} else if (userEntity.getRole() == UserRole.PLAYER) {
+//			entities = this.elementDao.findAllByLocation_LatBetweenAndLocation_LngBetweenAndActive(minLat, maxLat,
+//					minLng, maxLng, true, PageRequest.of(page, size, Direction.ASC, "elementId"));
+//		} else {
+//			throw new UserNotFoundException("Not valid operation for ADMIN user");
+//		}
+//
+//		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
+//	}
+	
+	
+	
 //	private String projectName;
 //	private ElementConverter elementConverter;
 //	private UserConverter userConverter;

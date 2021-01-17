@@ -13,7 +13,7 @@ public class UserConverter extends Converter {
 	public UserBoundary fromEntity(UserEntity entity) {
 		UserBoundary rv = new UserBoundary();
 		rv.setUserId(convertToUserId(entity.getUserId()));
-//		rv.setAvatar(entity.getAvatar());
+		rv.setLicensePlate(entity.getLicensePlate());
 		rv.setUsername(entity.getUsername());
 		rv.setRole(entity.getRole());
 		return rv;
@@ -23,7 +23,7 @@ public class UserConverter extends Converter {
 	public UserEntity toEntity(UserBoundary boundary) {
 		UserEntity rv = new UserEntity();
 		rv.setUserId(convertToEntityId(boundary.getUserId().getDomain(), boundary.getUserId().getEmail()));
-//		rv.setAvatar(boundary.getAvatar());
+		rv.setLicensePlate(boundary.getLicensePlate());
 		rv.setUsername(boundary.getUsername());
 		rv.setRole(boundary.getRole());
 		return rv;

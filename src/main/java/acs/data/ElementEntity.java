@@ -38,21 +38,21 @@ public class ElementEntity {
 	private Date createdTimestamp; 					// CREATED_TIME_STAMP TIMESTAMP
 	private String createdBy; 						// DOMAIN VARCHAR(255)
 													// ID VARCHAR(255)
-	private Location location; 						// LAT DOUBLE
+//	private Location location; 						// LAT DOUBLE
 							  						// LNG DOUBLE
 	private Map<String, Object> elementAttributes; 	// ELEMENT_ATTRIBUTES CLOB
 
 	// add another entity collection related to this one using ONE-TO-MANY relationship
 //	@DBRef(lazy = true)
-	private Set<ElementEntity> childrenElements;
+//	private Set<ElementEntity> childrenElements;
 		
 	// add another entity related to this one using MANY-TO-ONE relationship
 //	@DBRef(lazy = true)
-	private ElementEntity origin;
+//	private ElementEntity origin;
 		
 
 	public ElementEntity() {
-		this.location = new Location();
+//		this.location = new Location();
 	}
 
 	public ElementEntity(String elementId, String type, String name, Boolean active, Date createdTimestamp,
@@ -64,7 +64,7 @@ public class ElementEntity {
 		this.active = active;
 		this.createdTimestamp = createdTimestamp;
 		this.createdBy = createdBy;
-		this.location = location;
+//		this.location = location;
 		this.elementAttributes = elementAttributes;
 	}
 	
@@ -127,17 +127,17 @@ public class ElementEntity {
 
 	}
 //	@Embedded
-	public Location getLocation() {
-		return location;
-	}
-
-	public void setLocation(Location location) {
-
-		if (location != null) {
-			this.location.setLat(location.getLat());
-			this.location.setLng(location.getLng());
-		}
-	}
+//	public Location getLocation() {
+//		return location;
+//	}
+//
+//	public void setLocation(Location location) {
+//
+//		if (location != null) {
+//			this.location.setLat(location.getLat());
+//			this.location.setLng(location.getLng());
+//		}
+//	}
 //	@Lob
 //	@Convert(converter = acs.logic.util.MapToJsonConverter.class)
 	public Map<String, Object> getElementAttributes() {
@@ -156,27 +156,27 @@ public class ElementEntity {
 	}
 	
 	//@OneToMany(mappedBy = "origin", fetch = FetchType.LAZY)
-	public Set<ElementEntity> getChildrenElements() {
-		return childrenElements;
-	}
-	
-	public void setChildrenElements(Set<ElementEntity> childrenElements) {
-		this.childrenElements = childrenElements;
-	}
-	
-	public void addChildElement(ElementEntity child) {
-		this.childrenElements.add(child);
-		child.setOrigin(this);
-	}
-	
-	//@ManyToOne(fetch = FetchType.LAZY)
-	public ElementEntity getOrigin() {
-		return origin;
-	}
-	
-	public void setOrigin(ElementEntity origin) {
-		this.origin = origin;
-	}
+//	public Set<ElementEntity> getChildrenElements() {
+//		return childrenElements;
+//	}
+//	
+//	public void setChildrenElements(Set<ElementEntity> childrenElements) {
+//		this.childrenElements = childrenElements;
+//	}
+//	
+//	public void addChildElement(ElementEntity child) {
+//		this.childrenElements.add(child);
+//		child.setOrigin(this);
+//	}
+//	
+//	//@ManyToOne(fetch = FetchType.LAZY)
+//	public ElementEntity getOrigin() {
+//		return origin;
+//	}
+//	
+//	public void setOrigin(ElementEntity origin) {
+//		this.origin = origin;
+//	}
 	
 //	// i added toString method
 //	@Override

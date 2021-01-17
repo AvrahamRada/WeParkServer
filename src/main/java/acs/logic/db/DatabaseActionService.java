@@ -2,6 +2,7 @@ package acs.logic.db;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
@@ -37,15 +38,6 @@ import acs.util.NewUserDetails;
 import acs.util.UserId;
 import acs.util.UserRole;
 
-//import acs.logic.EnhancedActionService;
-//import acs.logic.util.ActionConverter;
-//import acs.logic.util.ElementConverter;
-//import acs.logic.util.UserConverter;
-//import acs.data.UserRole;
-//import acs.dal.ActionDao;
-//import acs.dal.ElementDao;
-//import acs.dal.UserDao;
-//import acs.action.ActionId;
 
 @Service
 public class DatabaseActionService implements ActionService {
@@ -57,6 +49,7 @@ public class DatabaseActionService implements ActionService {
 	private final String CREATE_USER_MANAGER_BY_USERNAME = "createUserManagerByUsername";	// Action #3 - "createUserManagerByUsername"
 	private final String NEW_USER_DETAILS = "newUserDetails";
 	private final String CITY = "city";
+	private final String FIND = "find";
 	private final String IS_USER_PARKED = "isUserParked";
 
 	private String projectName;
@@ -115,109 +108,204 @@ public class DatabaseActionService implements ActionService {
 				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
 						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
 				
-				// Find and get the element the we want to perform this Action about 
-				element = DatabaseElementService.findActiveElement(elementDao, this.elementConverter.convertToEntityId(
-						action.getElement().getElementId().getDomain(), action.getElement().getElementId().getId()));
+				// Get all elements
+				List<ElementBoundary> allElementsFromDatabase = StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
+																.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
+																.collect(Collectors.toList());
+				int aindex = -1;
+				// Find specific element that we need
+				for (int i = 0; i < allElementsFromDatabase.size(); i++) {
+					if(isInside((double)(action.getActionAttributes().get("lat")),
+								(double)(action.getActionAttributes().get("lng")),
+								allElementsFromDatabase.get(i))) {
+						aindex = i;
+						break;
+					}
+				}
 				
-				// update element attribute of isTaken to TRUE
-				element.getElementAttributes().put(IS_TAKEN, true);
-				// update the element in the DB.
-				elementDao.save(element);
+				if(aindex<0 || aindex >8)
+					throw new RuntimeException("** ERROR ** || user's location is not valid (out of range)");
+				element = this.elementConverter.toEntity(allElementsFromDatabase.get(aindex));
+//				element.getElementAttributes().put()
+				
+				
+//				// Checking if the user that invoke this action is a player: YES - continue, NO - runtime Exception
+//				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
+//						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
+//				
+//				// Find and get the element the we want to perform this Action about 
+//				element = DatabaseElementService.findActiveElement(elementDao, this.elementConverter.convertToEntityId(
+//						action.getElement().getElementId().getDomain(), action.getElement().getElementId().getId()));
+//				
+//				// update element attribute of isTaken to TRUE
+//				element.getElementAttributes().put(IS_TAKEN, true);
+//				// update the element in the DB.
+//				elementDao.save(element);
 				return action;
 	
 			case UNPARK:
-				// Checking if the user that invoke this action is a player: YES - continue, NO - runtime Exception
-				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
-						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
-				
-				// Find all actions that the same person that invoke this action, invoked, and of type: PARK, and get the last one sorted by createdTimestamp
-				List<ActionEntity> lastParkAction = actionDao.findOneByInvokedByAndTypeLike(
-						actionConverter.convertToEntityId(action.getInvokedBy().getUserId().getDomain(),
-								action.getInvokedBy().getUserId().getEmail()),
-						PARK, PageRequest.of(0, 1, Direction.DESC, "createdTimestamp"));
-				if (lastParkAction.size() == 0) {
-					throw new RuntimeException("Player did not parked yet.");
-				}
-				// Get the element(domain+id) of the player that already parked
-				String elementId = lastParkAction.get(0).getElement();
-				// Get the hole element( ElementEntity)
-				element = elementDao.findById(elementId)
-						.orElseThrow(() -> new ElementNotFoundException("could not find element"));
-				// update element attribute of isTaken to TRUE
-				element.getElementAttributes().put(IS_TAKEN, false);
-				// update the element in the DB.
-				elementDao.save(element);
+//				// Checking if the user that invoke this action is a player: YES - continue, NO - runtime Exception
+//				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
+//						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
+//				
+//				// Find all actions that the same person that invoke this action, invoked, and of type: PARK, and get the last one sorted by createdTimestamp
+//				List<ActionEntity> lastParkAction = actionDao.findOneByInvokedByAndTypeLike(
+//						actionConverter.convertToEntityId(action.getInvokedBy().getUserId().getDomain(),
+//								action.getInvokedBy().getUserId().getEmail()),
+//						PARK, PageRequest.of(0, 1, Direction.DESC, "createdTimestamp"));
+//				if (lastParkAction.size() == 0) {
+//					throw new RuntimeException("Player did not parked yet.");
+//				}
+//				// Get the element(domain+id) of the player that already parked
+//				String elementId = lastParkAction.get(0).getElement();
+//				// Get the hole element( ElementEntity)
+//				element = elementDao.findById(elementId)
+//						.orElseThrow(() -> new ElementNotFoundException("could not find element"));
+//				// update element attribute of isTaken to TRUE
+//				element.getElementAttributes().put(IS_TAKEN, false);
+//				// update the element in the DB.
+//				elementDao.save(element);
 				return action;
 	
 				// This case is performed when we create a City = create user MANAGER
 			case CREATE_USER_MANAGER_BY_USERNAME:
-				// Get NewUserDetails from actionAttributes inside action
-				NewUserDetails newUserDetails = new NewUserDetails(
-						action.getActionAttributes().get("email").toString(),
-						UserRole.valueOf(action.getActionAttributes().get("role").toString()),
-						action.getActionAttributes().get("username").toString(),
-						action.getActionAttributes().get("avatar").toString());
-				
-				// Find all users by username or userId (Find the city in our DB)
-				List<UserEntity> users = userDao.findAllByUsernameOrUserId(newUserDetails.getUsername(),
-						this.userConverter.convertToEntityId(this.projectName, newUserDetails.getEmail()),
-						PageRequest.of(0, 1, Direction.DESC, "username"));
-				if (!users.isEmpty()) {
-					throw new RuntimeException("Manager already exists.");
-				}
-				// Create UserBoundary
-				UserBoundary userBoudary = new UserBoundary(new UserId(this.projectName, newUserDetails.getEmail()),
-						newUserDetails.getRole(), newUserDetails.getUsername()/*, newUserDetails.getAvatar()*/);
-				// Create UserEntity
-				UserEntity newUser = userConverter.toEntity(userBoudary);
-				// Create user in the DB
-				this.userDao.save(newUser);
-				// Create ElementBoundary
-				ElementBoundary elementBoundary = new ElementBoundary(
-						new ElementId(this.projectName, UUID.randomUUID().toString()), CITY, newUser.getUsername(), true,
-						new Date(System.currentTimeMillis()),
-						new CreatedBy(new UserId(userBoudary.getUserId().getDomain(), userBoudary.getUserId().getEmail())),
-						new Location(99999.0, 99999.0), new HashMap<>());
-				// Create ELEMENT city in the DB
-				this.elementDao.save(this.elementConverter.toEntity(elementBoundary));
-				action.setElement(new Element(elementBoundary.getElementId()));
-				return userBoudary;
+//				// Get NewUserDetails from actionAttributes inside action
+//				NewUserDetails newUserDetails = new NewUserDetails(
+//						action.getActionAttributes().get("email").toString(),
+//						UserRole.valueOf(action.getActionAttributes().get("role").toString()),
+//						action.getActionAttributes().get("username").toString(),
+//						action.getActionAttributes().get("avatar").toString());
+//				
+//				// Find all users by username or userId (Find the city in our DB)
+//				List<UserEntity> users = userDao.findAllByUsernameOrUserId(newUserDetails.getUsername(),
+//						this.userConverter.convertToEntityId(this.projectName, newUserDetails.getEmail()),
+//						PageRequest.of(0, 1, Direction.DESC, "username"));
+//				if (!users.isEmpty()) {
+//					throw new RuntimeException("Manager already exists.");
+//				}
+//				// Create UserBoundary
+//				UserBoundary userBoudary = new UserBoundary(new UserId(this.projectName, newUserDetails.getEmail()),
+//						newUserDetails.getRole(), newUserDetails.getUsername()/*, newUserDetails.getAvatar()*/);
+//				// Create UserEntity
+//				UserEntity newUser = userConverter.toEntity(userBoudary);
+//				// Create user in the DB
+//				this.userDao.save(newUser);
+//				// Create ElementBoundary
+//				ElementBoundary elementBoundary = new ElementBoundary(
+//						new ElementId(this.projectName, UUID.randomUUID().toString()), CITY, newUser.getUsername(), true,
+//						new Date(System.currentTimeMillis()),
+//						new CreatedBy(new UserId(userBoudary.getUserId().getDomain(), userBoudary.getUserId().getEmail())),
+//						new Location(99999.0, 99999.0), new HashMap<>());
+//				// Create ELEMENT city in the DB
+//				this.elementDao.save(this.elementConverter.toEntity(elementBoundary));
+//				action.setElement(new Element(elementBoundary.getElementId()));
+//				return userBoudary;
+				return action;
 	
 			case IS_USER_PARKED:
-				// First of all check if you are PLAYER: YES - continue, NO - runtime exception
+//				// First of all check if you are PLAYER: YES - continue, NO - runtime exception
+//				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
+//						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
+//				
+//				// All actions that this UserId invoked & type = "PARK"
+//				List<ActionEntity> myActionPark = actionDao.findOneByInvokedByAndTypeLike(
+//						actionConverter.convertToEntityId(action.getInvokedBy().getUserId().getDomain(),
+//								action.getInvokedBy().getUserId().getEmail()),
+//						PARK, PageRequest.of(0, 1, Direction.DESC, "createdTimestamp"));
+//				
+//				// All actions that this UserId invoked & type = "UNPARK"
+//				List<ActionEntity> myActionUnpark = actionDao.findOneByInvokedByAndTypeLike(
+//						actionConverter.convertToEntityId(action.getInvokedBy().getUserId().getDomain(),
+//								action.getInvokedBy().getUserId().getEmail()),
+//						UNPARK, PageRequest.of(0, 1, Direction.DESC, "createdTimestamp"));
+//				
+//				// If no actions where found - PLAYER still didn't parked
+//				if (myActionPark.size() == 0 && myActionUnpark.size() == 0) {
+//					throw new RuntimeException("Player did not parked yet.");
+//				} else if (myActionPark.size() == 0) {
+//					return false;
+//				} else if (myActionUnpark.size() == 0) {
+//					return true;
+//				} else {
+//					if (myActionPark.get(0).getCreatedTimestamp()
+//							.compareTo(myActionUnpark.get(0).getCreatedTimestamp()) > 0) {
+//						return true;
+//					}
+//					return false;
+//				}
+				return action;
+				
+				
+			case FIND:
+				// Checking if the user that invoke this action is a player: YES - continue, NO - runtime Exception
 				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
 						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
 				
-				// All actions that this UserId invoked & type = "PARK"
-				List<ActionEntity> myActionPark = actionDao.findOneByInvokedByAndTypeLike(
-						actionConverter.convertToEntityId(action.getInvokedBy().getUserId().getDomain(),
-								action.getInvokedBy().getUserId().getEmail()),
-						PARK, PageRequest.of(0, 1, Direction.DESC, "createdTimestamp"));
-				
-				// All actions that this UserId invoked & type = "UNPARK"
-				List<ActionEntity> myActionUnpark = actionDao.findOneByInvokedByAndTypeLike(
-						actionConverter.convertToEntityId(action.getInvokedBy().getUserId().getDomain(),
-								action.getInvokedBy().getUserId().getEmail()),
-						UNPARK, PageRequest.of(0, 1, Direction.DESC, "createdTimestamp"));
-				
-				// If no actions where found - PLAYER still didn't parked
-				if (myActionPark.size() == 0 && myActionUnpark.size() == 0) {
-					throw new RuntimeException("Player did not parked yet.");
-				} else if (myActionPark.size() == 0) {
-					return false;
-				} else if (myActionUnpark.size() == 0) {
-					return true;
-				} else {
-					if (myActionPark.get(0).getCreatedTimestamp()
-							.compareTo(myActionUnpark.get(0).getCreatedTimestamp()) > 0) {
-						return true;
+				// Get all elements
+				List<ElementBoundary> allElements = StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
+																.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
+																.collect(Collectors.toList());
+				int index = -1;
+				// Find specific element that we need
+				for (int i = 0; i < allElements.size(); i++) {
+					if(isInside((double)(action.getActionAttributes().get("lat")),
+								(double)(action.getActionAttributes().get("lng")),
+								allElements.get(i))) {
+						index = i;
+						break;
 					}
-					return false;
 				}
+				
+				if(index>=0 && index <=8)
+					return allElements.get(index);
+				throw new RuntimeException("** ERROR ** || user's location is not valid (out of range)");
 	
 			default:
 				return action;
 		}
+	}
+
+	private boolean isInside(double lat, double lng, ElementBoundary elementBoundary) {
+		return isBounded((double)elementBoundary.getElementAttributes().get("top"),
+						(double)elementBoundary.getElementAttributes().get("left"),
+						(double)elementBoundary.getElementAttributes().get("bottom"),
+						(double)elementBoundary.getElementAttributes().get("right"),
+						lat,lng);
+	}
+	
+	/*
+	* top: north latitude of bounding box.
+	* left: left longitude of bounding box (western bound). 
+	* bottom: south latitude of the bounding box.
+	* right: right longitude of bounding box (eastern bound).
+	* latitude: latitude of the point to check.
+	* longitude: longitude of the point to check.
+	*/
+	private boolean isBounded(double leftUpLat, double leftUpLng, double rightDownLat, double rightDownLng, 
+	                  double latitude, double longitude){
+	        /* Check latitude bounds first. */
+	        if(leftUpLat >= latitude && latitude >= rightDownLat){
+	                /* If your bounding box doesn't wrap 
+	                   the date line the value
+	                   must be between the bounds.
+	                   If your bounding box does wrap the 
+	                   date line it only needs to be  
+	                   higher than the left bound or 
+	                   lower than the right bound. */
+	        	
+	        	 if(leftUpLng <= longitude && longitude <= rightDownLng) {
+	        		 return true;
+	        	 }
+	        	 else {
+	        		 return false;
+	        	 }
+//	            if(leftUpLng <= longitude && leftUpLng <= longitude && longitude <= rightDownLng){
+//	                return true;
+//	            } else if(leftUpLng > rightDownLng && (leftUpLng <= longitude || longitude <= rightDownLng)) {
+//	                return true;
+//	            }
+	        }
+	        return false;
 	}
 
 	@Override

@@ -120,21 +120,21 @@ public class ElementController {
 
 	}
 	
-	@RequestMapping(path = "/acs/elements/{userDomain}/{userEmail}/search/near/{lat}/{lng}/{distance}", 
-			method = RequestMethod.GET, 
-			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ElementBoundary[] getAllElementsByLocation(@PathVariable("userDomain") String userDomain,
-			@PathVariable("userEmail") String userEmail, 
-			@PathVariable("lat") String lat,
-			@PathVariable("lng") String lng, 
-			@PathVariable("distance") String distance,
-			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
-			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
-		
-		return elementService.getAllElementsByLocation(userDomain,userEmail,lat,lng,distance,size,page).toArray(new ElementBoundary[0]);
-//		return new ElementBoundary[] {};
-
-	}
+//	@RequestMapping(path = "/acs/elements/{userDomain}/{userEmail}/search/near/{lat}/{lng}/{distance}", 
+//			method = RequestMethod.GET, 
+//			produces = MediaType.APPLICATION_JSON_VALUE)
+//	public ElementBoundary[] getAllElementsByLocation(@PathVariable("userDomain") String userDomain,
+//			@PathVariable("userEmail") String userEmail, 
+//			@PathVariable("lat") String lat,
+//			@PathVariable("lng") String lng, 
+//			@PathVariable("distance") String distance,
+//			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+//			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+//		
+//		return elementService.getAllElementsByLocation(userDomain,userEmail,lat,lng,distance,size,page).toArray(new ElementBoundary[0]);
+////		return new ElementBoundary[] {};
+//
+//	}
 
 	/*--------------------- PUT APIS ------------------- */
 	// Update an element

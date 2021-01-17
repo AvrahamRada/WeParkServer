@@ -18,14 +18,14 @@ public class ElementBoundary {
 	private Boolean active;
 	private Date createdTimestamp;
 	private CreatedBy createdBy;
-	private Location location;
+//	private Location location;
 	private Map<String, Object> elementAttributes;
 
 	public ElementBoundary() {
 	}
 
 	public ElementBoundary(ElementId elementId, String type, String name, Boolean active, Date createdTimestamp,
-			CreatedBy createdBy, Location location, Map<String, Object> elementAttributes) {
+			CreatedBy createdBy, /*Location location,*/ Map<String, Object> elementAttributes) {
 
 		super();
 		this.elementId = elementId;
@@ -34,7 +34,7 @@ public class ElementBoundary {
 		this.active = active;
 		this.createdTimestamp = createdTimestamp;
 		this.createdBy = createdBy;
-		this.location = location;
+//		this.location = location;
 		this.elementAttributes = elementAttributes;
 	}
 
@@ -86,13 +86,13 @@ public class ElementBoundary {
 		this.createdBy = createdBy;
 	}
 
-	public Location getLocation() {
-		return location;
-	}
-
-	public void setLocation(Location location) {
-		this.location = location;
-	}
+//	public Location getLocation() {
+//		return location;
+//	}
+//
+//	public void setLocation(Location location) {
+//		this.location = location;
+//	}
 
 	public Map<String, Object> getElementAttributes() {
 		return elementAttributes;
@@ -104,11 +104,11 @@ public class ElementBoundary {
 
 	public void validation() {
 	
-		if (location == null) {
-			throw new RuntimeException("location was not instantiate");
-		}
-
-		location.validation();
+//		if (location == null) {
+//			throw new RuntimeException("location was not instantiate");
+//		}
+//
+//		location.validation();
 
 		if (type == null) {
 			throw new RuntimeException("type was not instantiate");
@@ -134,11 +134,11 @@ public class ElementBoundary {
 
 	}
 	
-	@Override
-	public String toString() {
-		return "ElementBoundary [elementId=" + this.elementId + ", type=" + this.type + ", name=" + this.name + ", active=" + this.active
-				+ ", creacteTimestamp=" + this.createdTimestamp + ", createdBy=" + this.createdBy + ", location=" + this.location
-				+ ", elementAttributes=" + this.elementAttributes + "]";
-	}
+//	@Override
+//	public String toString() {
+//		return "ElementBoundary [elementId=" + this.elementId + ", type=" + this.type + ", name=" + this.name + ", active=" + this.active
+//				+ ", creacteTimestamp=" + this.createdTimestamp + ", createdBy=" + this.createdBy + ", location=" + this.location
+//				+ ", elementAttributes=" + this.elementAttributes + "]";
+//	}
 	
 }

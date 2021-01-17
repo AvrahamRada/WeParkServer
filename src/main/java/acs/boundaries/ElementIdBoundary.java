@@ -5,7 +5,6 @@ public class ElementIdBoundary {
 	private String id;
 
 	public ElementIdBoundary() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public ElementIdBoundary(String domain, String id) {
@@ -40,8 +39,8 @@ public class ElementIdBoundary {
 		
 	}
 	
-	@Override
-	public String toString() {
-		return "ElementIdBoundray [domain=" + this.domain + ", id=" + this.id + "]";
-	}
+//	@Override
+//	public String toString() {
+//		return "ElementIdBoundray [domain=" + this.domain + ", id=" + this.id + "]";
+//	}
 }

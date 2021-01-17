@@ -8,28 +8,29 @@ import javax.persistence.Table;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import acs.util.UserId;
 import acs.util.UserRole;
 
 //@Entity
 @Document(collection = "USERS")
-public class UserEntity {//USERS
+public class UserEntity {	//USERS
 
 	@Id
-	private String userId; // USER_ID PK VARCHAR(255)
-	private UserRole role; // ROLE VARCHAR(255) 
-	private String username; // USERNAME VARCHAR(255)
-//	private String avatar; //AVATAR VARCHAR(255)
+	private String userId; 			// USER_ID PK VARCHAR(255)
+	private UserRole role; 			// ROLE VARCHAR(255) 
+	private String username; 		// USERNAME VARCHAR(255)
+	private String licensePlate; 	//AVATAR VARCHAR(255)
 
 	public UserEntity() {
 //		this.userId = new UserId();
 	}
 
-	public UserEntity(String userId, String role, String username, String avatar) {
+	public UserEntity(String userId, String role, String username, String licensePlate) {
 		super();
 		this.userId = userId;
 		this.role = UserRole.valueOf(role);
 		this.username = username;
-//		this.avatar = avatar;
+		this.licensePlate = licensePlate;
 	}
 
 	@Id
@@ -62,15 +63,15 @@ public class UserEntity {//USERS
 		}
 	}
 
-//	public String getAvatar() {
-//		return avatar;
-//	}
-//
-//	public void setAvatar(String avatar) {
-//		if (avatar != null && avatar != "") {
-//			this.avatar = avatar;
-//		}
-//	}
+	public String getLicensePlate() {
+		return licensePlate;
+	}
+
+	public void setLicensePlate(String licensePlate) {
+		if (licensePlate != null && licensePlate != "") {
+			this.licensePlate = licensePlate;
+		}
+	}
 	
 //	// i added toString method
 //	@Override

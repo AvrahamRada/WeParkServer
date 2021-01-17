@@ -22,7 +22,7 @@ public class Element {
 
 	public void validation() {
 		if(this.elementId == null) {
-			throw new RuntimeException("\n** ERROR ** \nelementId domain is NULL.");
+			throw new RuntimeException("** ERROR ** || elementId is NULL.");
 		}
 		elementId.validation();
 	}

@@ -4,17 +4,17 @@ public class NewUserDetails {
 	private String email;
 	private UserRole role;
 	private String username;
-//	private String avatar;
+	private String licensePlate;
 	
 	public NewUserDetails() {
 	}
 
-	public NewUserDetails(String email, UserRole role, String username, String avatar) {
+	public NewUserDetails(String email, UserRole role, String username, String licensePlate) {
 		super();
 		this.email = email;
 		this.role = role;
 		this.username = username;
-//		this.avatar = avatar;
+		this.licensePlate = licensePlate;
 	}
 
 	public String getEmail() {
@@ -41,12 +41,12 @@ public class NewUserDetails {
 		this.username = username;
 	}
 
-//	public String getAvatar() {
-//		return avatar;
-//	}
-//
-//	public void setAvatar(String avatar) {
-//		this.avatar = avatar;
-//	}
+	public String getLicensePlate() {
+		return licensePlate;
+	}
+
+	public void setLicensePlate(String licensePlate) {
+		this.licensePlate = licensePlate;
+	}
 	
 }
