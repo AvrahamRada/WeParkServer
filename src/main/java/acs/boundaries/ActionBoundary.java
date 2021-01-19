@@ -84,9 +84,7 @@ public class ActionBoundary {
 		if (this.type == null) {
 			throw new RuntimeException("** ERROR ** | type of ActionBoundary is NULL");
 		}
-//		if(this.element == null) {
-//			throw new RuntimeException("** ERROR ** | element is NULL");
-//		}
+
 		this.element.validation();
 		if(this.invokedBy == null) {
 			throw new RuntimeException("invokedBy was not instantiate");
@@ -103,11 +101,4 @@ public class ActionBoundary {
 			}
 		}
 	}	
-	
-//	@Override
-//	public String toString() {
-//		return "ActionBoundary [actionId=" + this.actionId + ", type=" + this.type + ", element=" + this.element
-//				+ ", createdTimestamp=" + this.createdTimestamp + ", invokedBy=" + this.invokedBy + ", actionAttributes="
-//				+ this.actionAttributes + "]";
-//	}
 }

@@ -38,9 +38,4 @@ public class ElementIdBoundary {
 		}
 		
 	}
-	
-//	@Override
-//	public String toString() {
-//		return "ElementIdBoundray [domain=" + this.domain + ", id=" + this.id + "]";
-//	}
 }

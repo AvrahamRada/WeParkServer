@@ -26,6 +26,7 @@ import acs.logic.ElementNotFoundException;
 import acs.logic.ElementService;
 import acs.logic.UserNotFoundException;
 import acs.logic.util.ElementConverter;
+import acs.logic.util.QueueingTheory;
 import acs.logic.util.UserConverter;
 import acs.util.CreatedBy;
 import acs.util.ElementId;
@@ -41,12 +42,19 @@ import acs.util.UserRole;
 
 @Service
 public class DatabaseElementService implements ElementService {
-
+	
+	// finals
+	private final double ARRIVAL_RATE = 60.00; 
+	private final double TOTAL_TIME_IN_SYSTEM = 200.00; 
+	private final double AVERAGE_WAITING_TIME_G = 20.00; 
+	private final int SERVERS = 216;
+	
 	private String projectName;
 	private ElementConverter elementConverter;
 	private UserConverter userConverter;
 	private ElementDao elementDao;
 	private UserDao userDao;
+	private QueueingTheory queueingTheory;;
 
 	@Autowired
 	public DatabaseElementService(ElementConverter elementConverter, ElementDao elementDao, UserConverter userConverter,
@@ -57,6 +65,7 @@ public class DatabaseElementService implements ElementService {
 		this.elementDao = elementDao;
 		this.userConverter = userConverter;
 		this.userDao = userDao;
+		this.queueingTheory = new QueueingTheory(ARRIVAL_RATE/60,TOTAL_TIME_IN_SYSTEM,AVERAGE_WAITING_TIME_G,SERVERS);
 	}
 
 	@PostConstruct
@@ -89,6 +98,23 @@ public class DatabaseElementService implements ElementService {
 
 		// Set element's manager details.
 		elementBoundary.setCreatedBy(new CreatedBy(new UserId(managerDomain, managerEmail)));
+		// Default values
+		elementBoundary.getElementAttributes().put("arrivalRate", queueingTheory.getArrivalRate());
+		elementBoundary.getElementAttributes().put("totalTimeInSystem", queueingTheory.getTotalTimeInSystem());
+		elementBoundary.getElementAttributes().put("averageWaitingTime_q", queueingTheory.getAverageWaitingTime_q());
+		elementBoundary.getElementAttributes().put("servers", queueingTheory.getServers());
+		
+		// Generated values
+//		this.queueingTheory.setGeneralQuantity(ARRIVAL_RATE, TOTAL_TIME_IN_SYSTEM);
+		elementBoundary.getElementAttributes().put("generalQuantity", this.queueingTheory.getGeneralQuantity());
+		elementBoundary.getElementAttributes().put("averageQueueQuantity_q", this.queueingTheory.getAverageQueueQuantity_q());
+		elementBoundary.getElementAttributes().put("serviceRate", this.queueingTheory.getServiceRate());
+		elementBoundary.getElementAttributes().put("averageServiceDuration", this.queueingTheory.getAverageServiceDuration());
+		elementBoundary.getElementAttributes().put("overload", this.queueingTheory.getOverload());
+		elementBoundary.getElementAttributes().put("getServiceImmediately", this.queueingTheory.getGetServiceImmediately());
+		elementBoundary.getElementAttributes().put("r", this.queueingTheory.getR());
+		elementBoundary.getElementAttributes().put("w_t", this.queueingTheory.getW_t());
+		
 
 		// Convert the element boundary to element entity
 		ElementEntity elementEntity = elementConverter.toEntity(elementBoundary);

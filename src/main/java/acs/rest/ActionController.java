@@ -25,12 +25,12 @@ public class ActionController {
 		this.actionService = actionService;
 	}
 
+	// Invoke an action
 	@RequestMapping(path = "/acs/actions", 
 			method = RequestMethod.POST, 
 			consumes = MediaType.APPLICATION_JSON_VALUE, 
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public Object invokeAction(@RequestBody ActionBoundary input) {
 		return actionService.invokeAction(input);
-//		return new Object();
 	}
 }

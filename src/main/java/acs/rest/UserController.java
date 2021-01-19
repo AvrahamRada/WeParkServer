@@ -26,13 +26,12 @@ public class UserController {
 	
 	/*--------------------- GET APIS ------------------- */
 
-	//Login user get request
+	// Login user get request
 	@RequestMapping(path = "/acs/users/login/{userDomain}/{userEmail}",
 			method = RequestMethod.GET,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserBoundary login(@PathVariable("userDomain") String userDomain, @PathVariable("userEmail") String userEmail) {
 		return userService.login(userDomain, userEmail);
-//		return new UserBoundary();
 	}
 	
 	/*--------------------- POST APIS ------------------- */
@@ -43,7 +42,6 @@ public class UserController {
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserBoundary createNewUser(@RequestBody NewUserDetails input) {
-//		return userService.createUser(new UserBoundary(new UserId(" ", input.getEmail()), input.getRole(), input.getUsername(), input.getAvatar()));
 		return userService.createUser(new UserBoundary(new UserId("", input.getEmail()), input.getRole(), input.getUsername(),input.getLicensePlate()));
 
 	}
@@ -58,5 +56,4 @@ public class UserController {
 			@PathVariable("userEmail") String userEmail, @RequestBody UserBoundary update) {
 		userService.updateUser(userDomain, userEmail, update);
 	}
-	
 }

@@ -22,6 +22,22 @@ public class QueueingTheory {
 	
 	// -------------------------------------------------------------------------------------------------------
 	
+	public QueueingTheory(double arrivalRate, double totalTimeInSystem, double averageWaitingTime_q,int servers) {
+		this.arrivalRate = arrivalRate;
+		this.totalTimeInSystem = totalTimeInSystem;
+		this.averageWaitingTime_q = averageWaitingTime_q;
+		this.servers = servers;
+		
+		setGeneralQuantity(arrivalRate,totalTimeInSystem);
+		setAverageQueueQuantity_q(arrivalRate, averageWaitingTime_q);
+		setServiceRate();
+		setAverageServiceDuration();
+		setOverload();
+		setR();
+		setGetServiceImmediately();
+		setW_t(1);
+	}
+
 	// get L
 	public double getGeneralQuantity() {	
 		return this.generalQuantity;
@@ -29,14 +45,14 @@ public class QueueingTheory {
 	
 	// set L
 	public void setGeneralQuantity(double arrivalRate, double totalTimeInSystem) { // (lamda, W)
-		this.generalQuantity = ((arrivalRate/60) * totalTimeInSystem);		// L = lamda * W
+		this.generalQuantity = (getArrivalRate() * getTotalTimeInSystem());		// L = lamda * W
 	}
 	
 	// -------------------------------------------------------------------------------------------------------
 	
 	// get lamda
 	public double getArrivalRate() {
-		return arrivalRate;
+		return this.arrivalRate;
 	}
 	
 	// set lamda
@@ -88,8 +104,8 @@ public class QueueingTheory {
 	}
 	
 	// set Meu
-	public void setServiceRate(double serviceRate) {
-		this.serviceRate = serviceRate;
+	public void setServiceRate() {
+		this.serviceRate = getArrivalRate() / (getGeneralQuantity() - getAverageQueueQuantity_q());
 	}
 	
 	// -------------------------------------------------------------------------------------------------------
@@ -100,8 +116,8 @@ public class QueueingTheory {
 	}
 
 	// set 1/Meu
-	public void setAverageServiceDuration(double serviceRate) {
-		this.averageServiceDuration = 1/serviceRate;
+	public void setAverageServiceDuration() {
+		this.averageServiceDuration = 1 / getServiceRate();
 	}
 	
 	// -------------------------------------------------------------------------------------------------------
@@ -124,8 +140,8 @@ public class QueueingTheory {
 	}
 	
 	// set p
-	public void setOverload(double arrivalRate, double servers, double serviceRate) {
-		this.overload = arrivalRate/(servers*serviceRate);
+	public void setOverload() {
+		this.overload = getArrivalRate() / (getServers() * getServiceRate());
 	}
 
 	// -------------------------------------------------------------------------------------------------------
@@ -135,7 +151,7 @@ public class QueueingTheory {
 	}
 	
 	public void setGetServiceImmediately() {
-		this.getServiceImmediately = Math.pow(sigma(this.servers), -1);
+		this.getServiceImmediately = Math.pow(sigma(getServers()), -1);
 	}
 	
 	// -------------------------------------------------------------------------------------------------------
@@ -148,8 +164,8 @@ public class QueueingTheory {
 	public void setW_t(double t) {
 		double temp1,temp2;
 		
-		temp2 = Math.pow(Math.E, ((-1) * (this.servers * this.serviceRate - arrivalRate)*t));
-		temp1 = (Math.pow(this.r, this.servers) * this.getServiceImmediately) / (factorialIterative(this.servers) * (1-this.overload));
+		temp2 = Math.pow(Math.E, ((-1) * (getServers() * getServiceRate() - getArrivalRate()) * t));
+		temp1 = (Math.pow(getR(), getServers()) * getGetServiceImmediately()) / (factorialIterative(getServers()) * (1 - getOverload()));
 		this.w_t = 1 - (temp1 * temp2);
 	}
 	
@@ -157,12 +173,12 @@ public class QueueingTheory {
 
 	// get r
 	public double getR() {
-		return r;
+		return this.r;
 	}
 	
 	// set r	
-	public void setR(double arrivalRate, double serviceRate) {
-		this.r = arrivalRate/serviceRate;
+	public void setR() {
+		this.r = getArrivalRate() / getServiceRate();
 	}
 	
 	// Factorial
@@ -186,7 +202,7 @@ public class QueueingTheory {
     }
     
     public double sigmaHelper(int n){
-        double temp = (Math.pow(this.r, n) / factorialIterative(n)) + (Math.pow(this.r, this.servers) / (factorialIterative(this.servers) * (1 - this.overload)));
+        double temp = (Math.pow(getR(), n) / factorialIterative(n)) + (Math.pow(getR(), getServers()) / (factorialIterative(getServers()) * (1 - getOverload())));
         return temp;
     }
     

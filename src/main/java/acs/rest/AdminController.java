@@ -1,6 +1,5 @@
 package acs.rest;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,18 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import acs.boundaries.ActionBoundary;
 import acs.boundaries.UserBoundary;
 import acs.logic.ActionService;
 import acs.logic.ElementService;
 import acs.logic.UserService;
-//import acs.logic.ActionService;
-//import acs.logic.ElementService;
-//import acs.logic.EnhancedActionService;
-//import acs.logic.EnhancedElementService;
-//import acs.logic.EnhancedUserService;
-//import acs.logic.UserService;
 
 @RestController
 public class AdminController {
@@ -33,7 +25,6 @@ public class AdminController {
 		this.userService = userService;
 		this.elementService = elementService;
 		this.actionService = actionService;
-
 	}
 
 	/*--------------------- GET all users APIS ------------------- */
@@ -45,7 +36,6 @@ public class AdminController {
 			@PathVariable("adminEmail") String adminEmail,
 			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
-//		return this.enhancedUserService.getAllUsers(adminDomain, adminEmail, size, page).toArray(new UserBoundary[0]);
 		return this.userService.getAllUsers(adminDomain, adminEmail, size, page).toArray(new UserBoundary[0]);
 	}
 
@@ -57,8 +47,6 @@ public class AdminController {
 			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
 		return this.actionService.getAllActions(adminDomain, adminEmail, size, page).toArray(new ActionBoundary[0]);
-//		return new ActionBoundary[] {};
-
 	}
 
 	/*--------------------- DELETE APIS ------------------- */
@@ -72,17 +60,13 @@ public class AdminController {
 	@RequestMapping(path = "/acs/admin/elements/{adminDomain}/{adminEmail}", method = RequestMethod.DELETE)
 	public void deleteAllElements(@PathVariable("adminDomain") String adminDomain,
 			@PathVariable("adminEmail") String adminEmail) {
-
 		this.elementService.deleteAllElements(adminDomain, adminEmail);
 	}
-
 	
-	// delete all user also admin!!
+	// delete all users (also admin)!!
 	@RequestMapping(path = "/acs/admin/users/{adminDomain}/{adminEmail}", method = RequestMethod.DELETE)
 	public void deleteAllUsers(@PathVariable("adminDomain") String adminDomain,
 			@PathVariable("adminEmail") String adminEmail) {
-		
 		this.userService.deleteAllUsers(adminDomain, adminEmail);
 	}
-
 }
