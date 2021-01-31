@@ -42,13 +42,13 @@ import acs.util.UserRole;
 
 @Service
 public class DatabaseElementService implements ElementService {
-	
+
 	// finals
-	private final double ARRIVAL_RATE = 60.00; 
-	private final double TOTAL_TIME_IN_SYSTEM = 200.00; 
-	private final double AVERAGE_WAITING_TIME_G = 20.00; 
+	private final double ARRIVAL_RATE = 60;
+	private final double TOTAL_TIME_IN_SYSTEM = 200;
+	private final double AVERAGE_WAITING_TIME_G = 20;
 	private final int SERVERS = 216;
-	
+
 	private String projectName;
 	private ElementConverter elementConverter;
 	private UserConverter userConverter;
@@ -65,7 +65,7 @@ public class DatabaseElementService implements ElementService {
 		this.elementDao = elementDao;
 		this.userConverter = userConverter;
 		this.userDao = userDao;
-		this.queueingTheory = new QueueingTheory(ARRIVAL_RATE/60,TOTAL_TIME_IN_SYSTEM,AVERAGE_WAITING_TIME_G,SERVERS);
+		this.queueingTheory = new QueueingTheory(ARRIVAL_RATE, TOTAL_TIME_IN_SYSTEM, AVERAGE_WAITING_TIME_G, SERVERS);
 	}
 
 	@PostConstruct
@@ -81,7 +81,7 @@ public class DatabaseElementService implements ElementService {
 	public String getProjectName() {
 		return projectName;
 	}
-	
+
 	@Override
 	public ElementBoundary create(String managerDomain, String managerEmail, ElementBoundary elementBoundary) {
 		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
@@ -103,18 +103,19 @@ public class DatabaseElementService implements ElementService {
 		elementBoundary.getElementAttributes().put("totalTimeInSystem", queueingTheory.getTotalTimeInSystem());
 		elementBoundary.getElementAttributes().put("averageWaitingTime_q", queueingTheory.getAverageWaitingTime_q());
 		elementBoundary.getElementAttributes().put("servers", queueingTheory.getServers());
-		
+
 		// Generated values
-//		this.queueingTheory.setGeneralQuantity(ARRIVAL_RATE, TOTAL_TIME_IN_SYSTEM);
 		elementBoundary.getElementAttributes().put("generalQuantity", this.queueingTheory.getGeneralQuantity());
-		elementBoundary.getElementAttributes().put("averageQueueQuantity_q", this.queueingTheory.getAverageQueueQuantity_q());
+		elementBoundary.getElementAttributes().put("averageQueueQuantity_q",
+				this.queueingTheory.getAverageQueueQuantity_q());
 		elementBoundary.getElementAttributes().put("serviceRate", this.queueingTheory.getServiceRate());
-		elementBoundary.getElementAttributes().put("averageServiceDuration", this.queueingTheory.getAverageServiceDuration());
+		elementBoundary.getElementAttributes().put("averageServiceDuration",
+				this.queueingTheory.getAverageServiceDuration());
 		elementBoundary.getElementAttributes().put("overload", this.queueingTheory.getOverload());
-		elementBoundary.getElementAttributes().put("getServiceImmediately", this.queueingTheory.getGetServiceImmediately());
+		elementBoundary.getElementAttributes().put("getServiceImmediately",
+				this.queueingTheory.getGetServiceImmediately());
 		elementBoundary.getElementAttributes().put("r", this.queueingTheory.getR());
 		elementBoundary.getElementAttributes().put("w_t", this.queueingTheory.getW_t());
-		
 
 		// Convert the element boundary to element entity
 		ElementEntity elementEntity = elementConverter.toEntity(elementBoundary);
@@ -147,7 +148,7 @@ public class DatabaseElementService implements ElementService {
 		// Convert the update entity to boundary and returns it.
 		return elementConverter.fromEntity(foundedElement);
 	}
-	
+
 	private void updateElementValues(ElementEntity toBeUpdatedEntity, ElementEntity inputEntity) {
 
 		// Copy the important values from update entity to toBeUpdateEntity only if they
@@ -161,7 +162,8 @@ public class DatabaseElementService implements ElementService {
 	}
 
 	@Override
-	public ElementBoundary getSpecificElement(String userDomain, String userEmail, String elementDomain, String elementId) {
+	public ElementBoundary getSpecificElement(String userDomain, String userEmail, String elementDomain,
+			String elementId) {
 		ElementEntity foundedElement;
 		UserEntity userEntity = DatabaseUserService
 				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
@@ -171,29 +173,29 @@ public class DatabaseElementService implements ElementService {
 
 		return elementConverter.fromEntity(foundedElement);
 	}
-	
+
 	private ElementEntity getSpecificElementWithPermission(String elementId, UserRole role) {
 		if (role == UserRole.MANAGER) {
 			// Fetching the specific element from DB.
 			return findActiveOrInActiveElement(elementDao, elementId);
 		} else if (role == UserRole.PLAYER) {
 			return findActiveElement(elementDao, elementId);
-	
+
 		} else { // Role is ADMIN
 			throw new UserNotFoundException("Not valid operation for ADMIN user");
 		}
-	
+
 	}
-	
+
 	public static ElementEntity findActiveElement(ElementDao elementDao, String elementId) {
-		List<ElementEntity> elements = elementDao.findOneByElementIdAndActive(elementId,true,
+		List<ElementEntity> elements = elementDao.findOneByElementIdAndActive(elementId, true,
 				PageRequest.of(0, 1, Direction.ASC, "elementId"));
-		if(elements.size() == 0 ) {
+		if (elements.size() == 0) {
 			throw new ElementNotFoundException("could not find element");
 		}
-		return elements.get(0);	
+		return elements.get(0);
 	}
-	
+
 //	public static ElementEntity findActiveElement(ElementDao elementDao, String elementId) {
 //		List<ElementEntity> elements = elementDao.findOneByElementIdAndActive(elementId,true,
 //				PageRequest.of(0, 1, Direction.ASC, "elementId"));
@@ -202,23 +204,22 @@ public class DatabaseElementService implements ElementService {
 //		}
 //		return elements.get(0);	
 //	}
-	
+
 	public static ElementEntity findActiveOrInActiveElement(ElementDao elementDao, String elementId) {
 		return elementDao.findById(elementId).orElseThrow(() -> new ElementNotFoundException("could not find element"));
 	}
-	
+
 	@Override
 	public List<ElementBoundary> getAll(String userDomain, String userEmail) {
-			UserEntity userEntity = DatabaseUserService.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
+		UserEntity userEntity = DatabaseUserService
+				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
 		if (userEntity.getRole() == UserRole.MANAGER) {
-			return StreamSupport
-					.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
+			return StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
 					.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
 					.collect(Collectors.toList());
-		// For now MANAGER & MANAGER will get the same info without permissions
+			// For now MANAGER & MANAGER will get the same info without permissions
 		} else if (userEntity.getRole() == UserRole.MANAGER) {
-			return StreamSupport
-					.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
+			return StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
 //					.filter(user -> user.getActive())
 					.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
 					.collect(Collectors.toList());
@@ -228,13 +229,11 @@ public class DatabaseElementService implements ElementService {
 //		return null;
 	}
 
-
-
 	@Override
 	public void deleteAllElements(String adminDomain, String adminEmail) {
 		DatabaseUserService.checkRole(adminDomain, adminEmail, UserRole.MANAGER, userDao, userConverter);
 		// Clear all elements from DB.
-		this.elementDao.deleteAll();		
+		this.elementDao.deleteAll();
 	}
 
 //	@Override
@@ -260,7 +259,8 @@ public class DatabaseElementService implements ElementService {
 
 	@Override
 	public List<ElementBoundary> getAll(String userDomain, String userEmail, int size, int page) {
-		UserEntity userEntity = DatabaseUserService.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
+		UserEntity userEntity = DatabaseUserService
+				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
 		List<ElementEntity> entities;
 
 		if (userEntity.getRole() == UserRole.MANAGER) {
@@ -270,16 +270,18 @@ public class DatabaseElementService implements ElementService {
 		} else {
 			throw new UserNotFoundException("Not valid operation for ADMIN user");
 		}
-		
+
 		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
 	}
 
 	@Override
-	public List<ElementBoundary> getAllElementsByName(String userDomain, String userEmail, String name, int size, int page) {
-		UserEntity userEntity = DatabaseUserService.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-		
+	public List<ElementBoundary> getAllElementsByName(String userDomain, String userEmail, String name, int size,
+			int page) {
+		UserEntity userEntity = DatabaseUserService
+				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
+
 		List<ElementEntity> entities;
-		
+
 		if (userEntity.getRole() == UserRole.MANAGER) {
 			entities = this.elementDao.findAllByNameLike(name, PageRequest.of(page, size, Direction.ASC, "elementId"));
 		} else if (userEntity.getRole() == UserRole.PLAYER) {
@@ -288,13 +290,14 @@ public class DatabaseElementService implements ElementService {
 		} else {
 			throw new UserNotFoundException("Not valid operation for ADMIN user");
 		}
-		
+
 		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
 	}
 
 	@Override
-	public List<ElementBoundary> getAllElementsByType(String userDomain, String userEmail, String type, int size, int page) {
-		
+	public List<ElementBoundary> getAllElementsByType(String userDomain, String userEmail, String type, int size,
+			int page) {
+
 		List<ElementEntity> entities;
 		UserEntity userEntity = DatabaseUserService
 				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
@@ -345,9 +348,7 @@ public class DatabaseElementService implements ElementService {
 //
 //		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
 //	}
-	
-	
-	
+
 //	private String projectName;
 //	private ElementConverter elementConverter;
 //	private UserConverter userConverter;
