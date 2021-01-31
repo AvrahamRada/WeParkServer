@@ -17,7 +17,7 @@ public class QueueingTheory {
 											// all
 	private double w_t; // W(t) - The chances to get a service within t units of time
 	private double r; // r - ratio
-	
+
 	private final double MINUTES_IN_HOUR = 60;
 
 	public QueueingTheory() {
@@ -25,10 +25,15 @@ public class QueueingTheory {
 	}
 
 	public QueueingTheory(double arrivalRate, double totalTimeInSystem, double averageWaitingTime_q, int servers) {
-		this.arrivalRate = arrivalRate;
-		this.totalTimeInSystem = totalTimeInSystem / MINUTES_IN_HOUR;
-		this.averageWaitingTime_q = averageWaitingTime_q / MINUTES_IN_HOUR;
-		this.servers = servers;
+		setArrivalRate(arrivalRate);
+		setTotalTimeInSystem(totalTimeInSystem);
+		setAverageWaitingTime_q(averageWaitingTime_q);
+		setServers(servers);
+		
+		this.arrivalRate = getArrivalRate();
+		this.totalTimeInSystem = getTotalTimeInSystem();
+		this.averageWaitingTime_q = getAverageWaitingTime_q();
+		this.servers = getServers();
 
 		setGeneralQuantity(arrivalRate, totalTimeInSystem);
 		setAverageQueueQuantity_q(arrivalRate, averageWaitingTime_q);
@@ -67,7 +72,7 @@ public class QueueingTheory {
 
 	// set W
 	public void setTotalTimeInSystem(double totalTimeInSystem) {
-		this.totalTimeInSystem = totalTimeInSystem;
+		this.totalTimeInSystem = totalTimeInSystem / MINUTES_IN_HOUR;
 	}
 
 	// -------------------------------------------------------------------------------------------------------
@@ -79,7 +84,7 @@ public class QueueingTheory {
 
 	// set Lq
 	public void setAverageQueueQuantity_q(double arrivalRate, double averageWaitingTime_q) {
-		this.averageQueueQuantity_q = arrivalRate * averageWaitingTime_q; // Lq = lamda * Wq
+		this.averageQueueQuantity_q = getArrivalRate() * getAverageWaitingTime_q(); // Lq = lamda * Wq
 	}
 
 	// -------------------------------------------------------------------------------------------------------
@@ -90,8 +95,8 @@ public class QueueingTheory {
 	}
 
 	// set Wq
-	public void setAverageWaitingTime_q(double arrivalRate, double generalQuantity, double averageQueueQuantity_q) {
-		this.averageWaitingTime_q = (arrivalRate / 60) / (generalQuantity - averageQueueQuantity_q);
+	public void setAverageWaitingTime_q(double averageWaitingTime_q) {
+		this.averageWaitingTime_q = averageWaitingTime_q / MINUTES_IN_HOUR;
 	}
 
 	// -------------------------------------------------------------------------------------------------------
