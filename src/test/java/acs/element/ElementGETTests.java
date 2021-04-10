@@ -33,7 +33,7 @@ import acs.util.UserRole;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ElementGETTests {
-//
+
 //	private int port;
 //
 //	// Element URL
@@ -1307,5 +1307,5 @@ public class ElementGETTests {
 //		assertThat(this.restTemplate.getForObject(searchByLocationUrl, ElementBoundary[].class,
 //				"2020b.lior.trachtman", "manager@gmail.com", 0,0,distance)).hasSize(X);
 //	}
-//	
+	
 }

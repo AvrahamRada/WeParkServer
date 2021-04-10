@@ -2,8 +2,10 @@ package acs.logic.db;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,6 +27,7 @@ import acs.data.UserEntity;
 import acs.logic.ElementNotFoundException;
 import acs.logic.ElementService;
 import acs.logic.UserNotFoundException;
+import acs.logic.util.AwsS3;
 import acs.logic.util.ElementConverter;
 import acs.logic.util.QueueingTheory;
 import acs.logic.util.UserConverter;
@@ -54,7 +57,9 @@ public class DatabaseElementService implements ElementService {
 	private UserConverter userConverter;
 	private ElementDao elementDao;
 	private UserDao userDao;
-	private QueueingTheory queueingTheory;;
+	private AwsS3 amazonAWS;	// AWS - Amazon
+	private QueueingTheory queueingTheory;	// QueueingTheory
+	private HashMap<String, Double> dataToSave;
 
 	@Autowired
 	public DatabaseElementService(ElementConverter elementConverter, ElementDao elementDao, UserConverter userConverter,
@@ -65,11 +70,259 @@ public class DatabaseElementService implements ElementService {
 		this.elementDao = elementDao;
 		this.userConverter = userConverter;
 		this.userDao = userDao;
-		this.queueingTheory = new QueueingTheory(ARRIVAL_RATE, TOTAL_TIME_IN_SYSTEM, AVERAGE_WAITING_TIME_G, SERVERS);
+		
+		dataToSave = new HashMap<>();
+		
+		amazonAWS = new AwsS3();																			// AWS - Amazon
+		this.amazonAWS.downloadCSV("Ichilov_Hospital.csv");													// Download from data-set
+		this.amazonAWS.saveCSVToData("Ichilov_Hospital.csv");												// Save on the server
+		this.dataToSave.put("Ichilov_Hospital" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.dataToSave.put("Ichilov_Hospital" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.dataToSave.put("Ichilov_Hospital" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.dataToSave.put("Ichilov_Hospital" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+		this.amazonAWS.downloadCSV("Neve_Tzedek_Neighborhood.csv");		// Download from data-set
+		this.amazonAWS.saveCSVToData("Neve_Tzedek_Neighborhood.csv");	// Save on the server
+		this.dataToSave.put("Neve_Tzedek_Neighborhood" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.dataToSave.put("Neve_Tzedek_Neighborhood" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.dataToSave.put("Neve_Tzedek_Neighborhood" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.dataToSave.put("Neve_Tzedek_Neighborhood" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+		this.amazonAWS.downloadCSV("Beach.csv");		// Download from data-set
+		this.amazonAWS.saveCSVToData("Beach.csv");	// Save on the server
+		this.dataToSave.put("Beach" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.dataToSave.put("Beach" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.dataToSave.put("Beach" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.dataToSave.put("Beach" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+		this.amazonAWS.downloadCSV("Dizengoff_Center_Shopping_Mall.csv");		// Download from data-set
+		this.amazonAWS.saveCSVToData("Dizengoff_Center_Shopping_Mall.csv");	// Save on the server
+		this.dataToSave.put("Dizengoff_Center_Shopping_Mall" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.dataToSave.put("Dizengoff_Center_Shopping_Mall" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.dataToSave.put("Dizengoff_Center_Shopping_Mall" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.dataToSave.put("Dizengoff_Center_Shopping_Mall" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+		this.amazonAWS.downloadCSV("Afeka.csv");		// Download from data-set
+		this.amazonAWS.saveCSVToData("Afeka.csv");	// Save on the server
+		this.dataToSave.put("Afeka" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.dataToSave.put("Afeka" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.dataToSave.put("Afeka" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.dataToSave.put("Afeka" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+		this.amazonAWS.downloadCSV("Allenby.csv");		// Download from data-set
+		this.amazonAWS.saveCSVToData("Allenby.csv");	// Save on the server
+		this.dataToSave.put("Allenby" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.dataToSave.put("Allenby" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.dataToSave.put("Allenby" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.dataToSave.put("Allenby" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+		this.amazonAWS.downloadCSV("School_area.csv");		// Download from data-set
+		this.amazonAWS.saveCSVToData("School_area.csv");	// Save on the server
+		this.dataToSave.put("School_area" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.dataToSave.put("School_area" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.dataToSave.put("School_area" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.dataToSave.put("School_area" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+		this.amazonAWS.downloadCSV("Food_area.csv");		// Download from data-set
+		this.amazonAWS.saveCSVToData("Food_area.csv");	// Save on the server
+		this.dataToSave.put("Food_area" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.dataToSave.put("Food_area" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.dataToSave.put("Food_area" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.dataToSave.put("Food_area" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+		this.amazonAWS.downloadCSV("Work_area.csv");		// Download from data-set
+		this.amazonAWS.saveCSVToData("Work_area.csv");	// Save on the server
+		this.dataToSave.put("Work_area" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.dataToSave.put("Work_area" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.dataToSave.put("Work_area" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.dataToSave.put("Work_area" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
 	}
 
 	@PostConstruct
 	public void init() {
+		
+		// Ichilov_Hospital
+		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Ichilov_Hospital" + "Lambda"), 
+				this.dataToSave.get("Ichilov_Hospital" + "W"), 
+				this.dataToSave.get("Ichilov_Hospital" + "Wq"), 
+				this.dataToSave.get("Ichilov_Hospital" + "Servers"));
+		
+		create(this.projectName, 
+				"avraham@gmail.com", 
+				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
+						, "squre"
+						, "squre01",
+						true,
+						new Date(System.currentTimeMillis()),
+						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
+						new HashMap<String, Object>() {{
+							put("top",32.11795); 
+							put("left",34.81906); 
+							put("bottom",32.11614);
+							put("right",34.82120);}}));
+
+		
+		// Neve_Tzedek_Neighborhood
+		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Neve_Tzedek_Neighborhood" + "Lambda"), 
+				this.dataToSave.get("Neve_Tzedek_Neighborhood" + "W"), 
+				this.dataToSave.get("Neve_Tzedek_Neighborhood" + "Wq"), 
+				this.dataToSave.get("Neve_Tzedek_Neighborhood" + "Servers"));
+		
+		create(this.projectName, 
+				"avraham@gmail.com", 
+				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
+						, "squre"
+						, "squre02",
+						true,
+						new Date(System.currentTimeMillis()),
+						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
+						new HashMap<String, Object>() {{
+							put("top",32.11795); 
+							put("left",34.690); 
+							put("bottom",32.11614);
+							put("right",34.81906);}}));
+		
+		// Beach
+		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Beach" + "Lambda"), 
+				this.dataToSave.get("Beach" + "W"), 
+				this.dataToSave.get("Beach" + "Wq"), 
+				this.dataToSave.get("Beach" + "Servers"));
+		
+		create(this.projectName, 
+				"avraham@gmail.com", 
+				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
+						, "squre"
+						, "squre03",
+						true,
+						new Date(System.currentTimeMillis()),
+						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
+						new HashMap<String, Object>() {{
+							put("top",32.11795); 
+							put("left",34.81474); 
+							put("bottom",32.11614);
+							put("right",34.8169);}}));
+		
+		// Dizengoff_Center_Shopping_Mall
+		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Dizengoff_Center_Shopping_Mall" + "Lambda"), 
+				this.dataToSave.get("Dizengoff_Center_Shopping_Mall" + "W"), 
+				this.dataToSave.get("Dizengoff_Center_Shopping_Mall" + "Wq"), 
+				this.dataToSave.get("Dizengoff_Center_Shopping_Mall" + "Servers"));
+		
+		create(this.projectName, 
+				"avraham@gmail.com", 
+				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
+						, "squre"
+						, "squre04",
+						true,
+						new Date(System.currentTimeMillis()),
+						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
+						new HashMap<String, Object>() {{
+							put("top",32.11614); 
+							put("left",34.81906); 
+							put("bottom",32.11433);
+							put("right",34.8212);}}));
+		
+		// Afeka
+		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Afeka" + "Lambda"), 
+				this.dataToSave.get("Afeka" + "W"), 
+				this.dataToSave.get("Afeka" + "Wq"), 
+				this.dataToSave.get("Afeka" + "Servers"));
+		
+		create(this.projectName, 
+				"avraham@gmail.com", 
+				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
+						, "squre"
+						, "squre05",
+						true,
+						new Date(System.currentTimeMillis()),
+						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
+						new HashMap<String, Object>() {{
+							put("top",32.11614); 
+							put("left",34.8169); 
+							put("bottom",32.11433);
+							put("right",34.81906);}}));
+		
+		// Allenby
+		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Allenby" + "Lambda"), 
+				this.dataToSave.get("Allenby" + "W"), 
+				this.dataToSave.get("Allenby" + "Wq"), 
+				this.dataToSave.get("Allenby" + "Servers"));
+		
+		create(this.projectName, 
+				"avraham@gmail.com", 
+				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
+						, "squre"
+						, "squre06",
+						true,
+						new Date(System.currentTimeMillis()),
+						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
+						new HashMap<String, Object>() {{
+							put("top",32.11614); 
+							put("left",34.81474); 
+							put("bottom",32.11433);
+							put("right",34.8169);}}));
+		
+		// School_area
+		this.queueingTheory = new QueueingTheory(this.dataToSave.get("School_area" + "Lambda"), 
+				this.dataToSave.get("School_area" + "W"), 
+				this.dataToSave.get("School_area" + "Wq"), 
+				this.dataToSave.get("School_area" + "Servers"));
+		
+		create(this.projectName, 
+				"avraham@gmail.com", 
+				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
+						, "squre"
+						, "squre07",
+						true,
+						new Date(System.currentTimeMillis()),
+						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
+						new HashMap<String, Object>() {{
+							put("top",32.11614); 
+							put("left",34.81474); 
+							put("bottom",32.11433);
+							put("right",34.8169);}}));
+		
+		// Food_area
+		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Food_area" + "Lambda"), 
+				this.dataToSave.get("Food_area" + "W"), 
+				this.dataToSave.get("Food_area" + "Wq"), 
+				this.dataToSave.get("Food_area" + "Servers"));
+		
+		create(this.projectName, 
+				"avraham@gmail.com", 
+				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
+						, "squre"
+						, "squre08",
+						true,
+						new Date(System.currentTimeMillis()),
+						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
+						new HashMap<String, Object>() {{
+							put("top",32.11614); 
+							put("left",34.81474); 
+							put("bottom",32.11433);
+							put("right",34.8169);}}));
+		
+		// Work_area
+		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Work_area" + "Lambda"), 
+				this.dataToSave.get("Work_area" + "W"), 
+				this.dataToSave.get("Work_area" + "Wq"), 
+				this.dataToSave.get("Work_area" + "Servers"));
+		
+		create(this.projectName, 
+				"avraham@gmail.com", 
+				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
+						, "squre"
+						, "squre09",
+						true,
+						new Date(System.currentTimeMillis()),
+						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
+						new HashMap<String, Object>() {{
+							put("top",32.11614); 
+							put("left",34.81474); 
+							put("bottom",32.11433);
+							put("right",34.8169);}}));
+		
 	}
 
 	// inject configuration value or inject default value

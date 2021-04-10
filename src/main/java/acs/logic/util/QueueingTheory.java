@@ -24,11 +24,11 @@ public class QueueingTheory {
 		super();
 	}
 
-	public QueueingTheory(double arrivalRate, double totalTimeInSystem, double averageWaitingTime_q, int servers) {
+	public QueueingTheory(double arrivalRate, double totalTimeInSystem, double averageWaitingTime_q, double servers) {
 		setArrivalRate(arrivalRate);
 		setTotalTimeInSystem(totalTimeInSystem);
 		setAverageWaitingTime_q(averageWaitingTime_q);
-		setServers(servers);
+		setServers((int)servers);
 		
 		this.arrivalRate = getArrivalRate();
 		this.totalTimeInSystem = getTotalTimeInSystem();
@@ -84,7 +84,7 @@ public class QueueingTheory {
 
 	// set Lq
 	public void setAverageQueueQuantity_q(double arrivalRate, double averageWaitingTime_q) {
-		this.averageQueueQuantity_q = getArrivalRate() * getAverageWaitingTime_q(); // Lq = lamda * Wq
+		this.averageQueueQuantity_q = getArrivalRate() * getAverageWaitingTime_q(); // Lq = lamda * WqvalRate() *
 	}
 
 	// -------------------------------------------------------------------------------------------------------
