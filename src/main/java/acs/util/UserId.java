@@ -8,7 +8,6 @@ public class UserId {
 	private String email;  // EMAIL VARCHAR(255)
 
 	public UserId() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public UserId(String domain, String email) {

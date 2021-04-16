@@ -108,7 +108,7 @@ public class DatabaseActionService implements ActionService {
 			case PARK:
 				// Checking if the user that invoke this action is a player: YES - continue, NO - runtime Exception
 				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
-						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
+						action.getInvokedBy().getUserId().getEmail(), UserRole.ACTOR, userDao, userConverter);
 				
 				// Get the exact element whom we want to perform PARK on
 				element = elementDao.findById(this.elementConverter.convertToEntityId(
@@ -125,7 +125,7 @@ public class DatabaseActionService implements ActionService {
 			case UNPARK:
 				// Checking if the user that invoke this action is a player: YES - continue, NO - runtime Exception
 				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
-						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
+						action.getInvokedBy().getUserId().getEmail(), UserRole.ACTOR, userDao, userConverter);
 				
 				// Get the exact element whom we want to perform PARK on
 				element = elementDao.findById(this.elementConverter.convertToEntityId(
@@ -142,7 +142,7 @@ public class DatabaseActionService implements ActionService {
 			case FIND:
 				// Checking if the user that invoke this action is a player: YES - continue, NO - runtime Exception
 				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
-						action.getInvokedBy().getUserId().getEmail(), UserRole.PLAYER, userDao, userConverter);
+						action.getInvokedBy().getUserId().getEmail(), UserRole.ACTOR, userDao, userConverter);
 				
 				// Get all elements
 				allElements = StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>

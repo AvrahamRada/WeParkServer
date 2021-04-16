@@ -37,7 +37,7 @@ public class NewUserDetails {
 		return username;
 	}
 
-	public void setUsename(String username) {
+	public void setUsername(String username) {
 		this.username = username;
 	}
 
@@ -48,5 +48,4 @@ public class NewUserDetails {
 	public void setLicensePlate(String licensePlate) {
 		this.licensePlate = licensePlate;
 	}
-	
 }

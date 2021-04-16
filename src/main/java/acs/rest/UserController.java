@@ -21,7 +21,6 @@ import acs.util.UserId;
 @RestController
 public class UserController {
 	private UserService userService;
-//	private AwsS3 amazonAWS = new AwsS3();
 	
 	@Autowired
 	public UserController(UserService userService) {
@@ -30,32 +29,6 @@ public class UserController {
 	
 	@PostConstruct
 	public void init() {
-		
-//		this.amazonAWS.deleteBucket("testavrahamweparkbucket");
-//		this.amazonAWS.listOfBuckets();
-//		this.amazonAWS.uploadFile("avrahamwepark", "tavrahamrada.csv", "D:\\test.csv");
-		
-//		this.amazonAWS.downloadCSV("Afeka.csv");
-//		this.amazonAWS.downloadCSV("Beach.csv");
-//		this.amazonAWS.downloadCSV("Evening_entertainment.csv");
-//		this.amazonAWS.downloadCSV("Food_area.csv");
-//		this.amazonAWS.downloadCSV("Ichilov_Hospital.csv");
-//		this.amazonAWS.downloadCSV("Neighborhood.csv");
-//		this.amazonAWS.downloadCSV("School_area.csv");
-//		this.amazonAWS.downloadCSV("Shopping_complex.csv");
-//		this.amazonAWS.downloadCSV("Work_area.csv");
-		
-		
-		
-//		this.amazonAWS.saveCSVToData("Afeka.csv");
-//		this.amazonAWS.saveCSVToData("Beach.csv");
-//		this.amazonAWS.saveCSVToData("Evening_entertainment.csv");
-//		this.amazonAWS.saveCSVToData("Food_area.csv");
-//		this.amazonAWS.saveCSVToData("Ichilov_Hospital.csv");
-//		this.amazonAWS.saveCSVToData("Neighborhood.csv");
-//		this.amazonAWS.saveCSVToData("School_area.csv");
-//		this.amazonAWS.saveCSVToData("Shopping_complex.csv");
-//		this.amazonAWS.saveCSVToData("Work_area.csv");
 	}
 	
 	/*--------------------- GET APIS ------------------- */

@@ -16,7 +16,7 @@ import acs.data.UserEntity;
 public interface UserDao extends MongoRepository<UserEntity,String>{ //extends PagingAndSortingRepository<UserEntity, String>{ 
 
 		// SELECT * FROM USERS WHERE USERNAME LIKE ?
-	// Is used in DatabaseActionService - in switch case: CREATE_USER_MANAGER_BY_USERNAME
+	// Is used in DatabaseActionService - in switch case: CREATE_USER_MANAGER_BY_USERNAME (not in use here)
 		public List<UserEntity> findAllByUsernameOrUserId(
 				@Param("username") String username,
 				@Param("userId") String userId, 

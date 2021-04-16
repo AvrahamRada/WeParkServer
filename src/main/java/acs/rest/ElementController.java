@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import acs.boundaries.ElementBoundary;
-import acs.boundaries.ElementIdBoundary;
 import acs.logic.ElementService;
-//import acs.logic.EnhancedElementService;
-
 
 @RestController
 public class ElementController {
@@ -60,7 +57,6 @@ public class ElementController {
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
 
 		return elementService.getAll(userDomain,userEmail,size,page).toArray(new ElementBoundary[0]);
-//		return new ElementBoundary[] {};
 	}
 	
 	// Get all elements by name
@@ -88,6 +84,7 @@ public class ElementController {
 	}
 	
 	/*--------------------- PUT APIS ------------------- */
+	
 	// Update an element
 	@RequestMapping(path = "/acs/elements/{managerDomain}/{managerEmail}/{elementDomain}/{elementId}", 
 			method = RequestMethod.PUT, 
@@ -99,64 +96,5 @@ public class ElementController {
 			@RequestBody ElementBoundary input) {
 
 		elementService.update(managerDomain, managerEmail, elementDomain, elementId, input);
-
 	}
-
-//	@RequestMapping(path = "/acs/elements/{userDomain}/{userEmail}/{elementDomain}/{elementId}/children", 
-//	method = RequestMethod.GET, 
-//	produces = MediaType.APPLICATION_JSON_VALUE)
-//public ElementBoundary[] getAllChildrenElements(@PathVariable("userDomain") String userDomain,
-//	@PathVariable("userEmail") String userEmail, 
-//	@PathVariable("elementDomain") String elementDomain,
-//	@PathVariable("elementId") String elementId,
-//	@RequestParam(name = "size", required = false, defaultValue = "10") int size,
-//	@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
-//
-////return enhancedElementService.getAllChildrenElements(userDomain,userEmail,elementDomain,elementId,size,page)
-////		.toArray(new ElementBoundary[0]);
-//return new ElementBoundary[] {};
-//}
-
-
-//@RequestMapping(path = "/acs/elements/{userDomain}/{userEmail}/{elementDomain}/{elementId}/parents", 
-//	method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-//public ElementBoundary[] getAllParentsElements(@PathVariable("userDomain") String userDomain,
-//	@PathVariable("userEmail") String userEmail, 
-//	@PathVariable("elementDomain") String elementDomain,
-//	@PathVariable("elementId") String elementId,
-//	@RequestParam(name = "size", required = false, defaultValue = "10") int size,
-//	@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
-//
-////return enhancedElementService.getAllOriginsElements(userDomain,userEmail,elementDomain,elementId,size,page).toArray(new ElementBoundary[0]);
-//return new ElementBoundary[] {};
-//
-//}
-	
-//	@RequestMapping(path = "/acs/elements/{userDomain}/{userEmail}/search/near/{lat}/{lng}/{distance}", 
-//			method = RequestMethod.GET, 
-//			produces = MediaType.APPLICATION_JSON_VALUE)
-//	public ElementBoundary[] getAllElementsByLocation(@PathVariable("userDomain") String userDomain,
-//			@PathVariable("userEmail") String userEmail, 
-//			@PathVariable("lat") String lat,
-//			@PathVariable("lng") String lng, 
-//			@PathVariable("distance") String distance,
-//			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
-//			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
-//		
-//		return elementService.getAllElementsByLocation(userDomain,userEmail,lat,lng,distance,size,page).toArray(new ElementBoundary[0]);
-////		return new ElementBoundary[] {};
-//
-//	}
-	
-//	@RequestMapping(path = "/acs/elements/{managerDomain}/{managerEmail}/{elementDomain}/{elementId}/children", 
-//			method = RequestMethod.PUT, 
-//			consumes = MediaType.APPLICATION_JSON_VALUE)
-//	public void bindParentElementToChildElement(@PathVariable("managerDomain") String managerDomain,
-//			@PathVariable("managerEmail") String managerEmail, 
-//			@PathVariable("elementDomain") String elementDomain,
-//			@PathVariable("elementId") String elementId, 
-//			@RequestBody ElementIdBoundary input) {
-//
-////		enhancedElementService.bindParentElementToChildElement(managerDomain, managerEmail, elementDomain, elementId, input);
-//	}
 }

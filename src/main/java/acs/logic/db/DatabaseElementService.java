@@ -72,8 +72,8 @@ public class DatabaseElementService implements ElementService {
 		this.userDao = userDao;
 		
 		dataToSave = new HashMap<>();
-		
 		amazonAWS = new AwsS3();																			// AWS - Amazon
+		
 		this.amazonAWS.downloadCSV("Ichilov_Hospital.csv");													// Download from data-set
 		this.amazonAWS.saveCSVToData("Ichilov_Hospital.csv");												// Save on the server
 		this.dataToSave.put("Ichilov_Hospital" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
@@ -431,7 +431,7 @@ public class DatabaseElementService implements ElementService {
 		if (role == UserRole.MANAGER) {
 			// Fetching the specific element from DB.
 			return findActiveOrInActiveElement(elementDao, elementId);
-		} else if (role == UserRole.PLAYER) {
+		} else if (role == UserRole.ACTOR) {
 			return findActiveElement(elementDao, elementId);
 
 		} else { // Role is ADMIN
@@ -518,7 +518,7 @@ public class DatabaseElementService implements ElementService {
 
 		if (userEntity.getRole() == UserRole.MANAGER) {
 			entities = this.elementDao.findAll(PageRequest.of(page, size, Direction.ASC, "elementId")).getContent();
-		} else if (userEntity.getRole() == UserRole.PLAYER) {
+		} else if (userEntity.getRole() == UserRole.ACTOR) {
 			entities = this.elementDao.findAllByActive(true, PageRequest.of(page, size, Direction.ASC, "elementId"));
 		} else {
 			throw new UserNotFoundException("Not valid operation for ADMIN user");
@@ -537,7 +537,7 @@ public class DatabaseElementService implements ElementService {
 
 		if (userEntity.getRole() == UserRole.MANAGER) {
 			entities = this.elementDao.findAllByNameLike(name, PageRequest.of(page, size, Direction.ASC, "elementId"));
-		} else if (userEntity.getRole() == UserRole.PLAYER) {
+		} else if (userEntity.getRole() == UserRole.ACTOR) {
 			entities = this.elementDao.findAllByNameLikeAndActive(name, true,
 					PageRequest.of(page, size, Direction.ASC, "elementId"));
 		} else {
@@ -557,7 +557,7 @@ public class DatabaseElementService implements ElementService {
 
 		if (userEntity.getRole() == UserRole.MANAGER) {
 			entities = this.elementDao.findAllByTypeLike(type, PageRequest.of(page, size, Direction.ASC, "elementId"));
-		} else if (userEntity.getRole() == UserRole.PLAYER) {
+		} else if (userEntity.getRole() == UserRole.ACTOR) {
 			entities = this.elementDao.findAllByTypeLikeAndActive(type, true,
 					PageRequest.of(page, size, Direction.ASC, "elementId"));
 		} else {

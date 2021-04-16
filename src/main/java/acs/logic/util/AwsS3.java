@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,8 +32,8 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 public class AwsS3 {
-	private final String ACCESS_KEY_ID = "AKIATMLKY7FE3DVIVKFL";
-	private final String ACCESS_SEC_ID = "liQCDiZLYhioYSFwTbyWHdKOP4JWrtbTVWtjn442";
+	private String ACCESS_KEY_ID = "AKIATMLKY7FE3DVIVKFL";
+	private String ACCESS_SEC_ID = "liQCDiZLYhioYSFwTbyWHdKOP4JWrtbTVWtjn442";
 	private String bucketName = "avrahamwepark";
 	String line = "";
 	private HashMap<String, Double> dataToSave;

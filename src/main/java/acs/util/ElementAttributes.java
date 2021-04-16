@@ -5,7 +5,6 @@ public class ElementAttributes {
 	private Boolean isOccupied;
 	
 	public ElementAttributes() {
-		// TODO Auto-generated constructor stub
 	}
 	
 
