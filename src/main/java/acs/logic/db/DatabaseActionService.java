@@ -140,7 +140,7 @@ public class DatabaseActionService implements ActionService {
 				return action;			
 				
 			case FIND:
-				// Checking if the user that invoke this action is a player: YES - continue, NO - runtime Exception
+				// Checking if the user that invoke this action is a actor: YES - continue, NO - runtime Exception
 				DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
 						action.getInvokedBy().getUserId().getEmail(), UserRole.ACTOR, userDao, userConverter);
 				
@@ -148,20 +148,22 @@ public class DatabaseActionService implements ActionService {
 				allElements = StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
 																.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
 																.collect(Collectors.toList());
-				index = -1;
-				// Find specific element that we need
-				for (int i = 0; i < allElements.size(); i++) {
-					if(isInside((double)(action.getActionAttributes().get("lat")),
-								(double)(action.getActionAttributes().get("lng")),
-								allElements.get(i))) {
-						index = i;
-						break;
-					}
-				}
 				
-				if(index>=0 && index <=8)
-					return allElements.get(index);
-				throw new RuntimeException("** ERROR ** || user's location is not valid (out of range)");
+				return allElements;
+//				index = -1;
+//				// Find specific element that we need
+//				for (int i = 0; i < allElements.size(); i++) {
+//					if(isInside((double)(action.getActionAttributes().get("lat")),
+//								(double)(action.getActionAttributes().get("lng")),
+//								allElements.get(i))) {
+//						index = i;
+//						break;
+//					}
+//				}
+//				
+//				if(index>=0 && index <=8)
+//					return allElements.get(index);
+//				throw new RuntimeException("** ERROR ** || user's location is not valid (out of range)");
 	
 			default:
 				return action;
