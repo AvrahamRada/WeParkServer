@@ -1,5 +1,10 @@
 package acs.logic.db;
 
+import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,7 +15,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,15 +37,8 @@ import acs.logic.util.QueueingTheory;
 import acs.logic.util.UserConverter;
 import acs.util.CreatedBy;
 import acs.util.ElementId;
-import acs.util.Location;
 import acs.util.UserId;
 import acs.util.UserRole;
-//import acs.dal.ElementDao;
-//import acs.dal.UserDao;
-//import acs.logic.util.ElementConverter;
-//import acs.logic.util.UserConverter;
-//import acs.logic.EnhancedElementService;
-//import acs.data.UserRole;
 
 @Service
 public class DatabaseElementService implements ElementService {
@@ -57,9 +54,20 @@ public class DatabaseElementService implements ElementService {
 	private UserConverter userConverter;
 	private ElementDao elementDao;
 	private UserDao userDao;
+	
 	private AwsS3 amazonAWS;	// AWS - Amazon
-	private QueueingTheory queueingTheory;	// QueueingTheory
-	private HashMap<String, Double> dataToSave;
+	private HashMap<String, Double> awsDataMap;
+	
+	private QueueingTheory queueingTheoryAfekaElement;
+	private QueueingTheory queueingTheoryAllenbyElement;
+	private QueueingTheory queueingTheoryFoodAreaElement;
+	private QueueingTheory queueingTheoryFrishmanBeachElement;
+	private QueueingTheory queueingTheoryIchilovHospitalElement;
+	private QueueingTheory queueingTheoryNeveTzedekElement;
+	private QueueingTheory queueingTheorySchoolElement;
+	private QueueingTheory queueingTheorySharonaMarketElement;
+	private QueueingTheory queueingTheoryWorkElement;
+
 
 	@Autowired
 	public DatabaseElementService(ElementConverter elementConverter, ElementDao elementDao, UserConverter userConverter,
@@ -71,88 +79,141 @@ public class DatabaseElementService implements ElementService {
 		this.userConverter = userConverter;
 		this.userDao = userDao;
 		
-		dataToSave = new HashMap<>();
-		amazonAWS = new AwsS3();																			// AWS - Amazon
+		awsDataMap = new HashMap<>();
+		amazonAWS = new AwsS3(); // AWS - Amazon
 		
-		this.amazonAWS.downloadCSV("Ichilov_Hospital.csv");													// Download from data-set
-		this.amazonAWS.saveCSVToData("Ichilov_Hospital.csv");												// Save on the server
-		this.dataToSave.put("Ichilov_Hospital" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
-		this.dataToSave.put("Ichilov_Hospital" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.dataToSave.put("Ichilov_Hospital" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
-		this.dataToSave.put("Ichilov_Hospital" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		deleteFilesFromServer(); // Delete files from server
 		
-		this.amazonAWS.downloadCSV("Neve_Tzedek_Neighborhood.csv");		// Download from data-set
-		this.amazonAWS.saveCSVToData("Neve_Tzedek_Neighborhood.csv");	// Save on the server
-		this.dataToSave.put("Neve_Tzedek_Neighborhood" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
-		this.dataToSave.put("Neve_Tzedek_Neighborhood" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.dataToSave.put("Neve_Tzedek_Neighborhood" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
-		this.dataToSave.put("Neve_Tzedek_Neighborhood" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		downloadFilesFromAmazonCloud(); // Download files to server
 		
-		this.amazonAWS.downloadCSV("Beach.csv");		// Download from data-set
-		this.amazonAWS.saveCSVToData("Beach.csv");	// Save on the server
-		this.dataToSave.put("Beach" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
-		this.dataToSave.put("Beach" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.dataToSave.put("Beach" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
-		this.dataToSave.put("Beach" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		readAllFilesToOurMap(); // read 
+	}
+
+	private void readAllFilesToOurMap() {
+		this.amazonAWS.readCSVFileToOurMap("Ichilov_Hospital.csv");		
+		this.awsDataMap.put("Ichilov_Hospital" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.awsDataMap.put("Ichilov_Hospital" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.awsDataMap.put("Ichilov_Hospital" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Ichilov_Hospital" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
-		this.amazonAWS.downloadCSV("Dizengoff_Center_Shopping_Mall.csv");		// Download from data-set
-		this.amazonAWS.saveCSVToData("Dizengoff_Center_Shopping_Mall.csv");	// Save on the server
-		this.dataToSave.put("Dizengoff_Center_Shopping_Mall" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
-		this.dataToSave.put("Dizengoff_Center_Shopping_Mall" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.dataToSave.put("Dizengoff_Center_Shopping_Mall" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
-		this.dataToSave.put("Dizengoff_Center_Shopping_Mall" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		this.amazonAWS.readCSVFileToOurMap("Neve_Tzedek.csv");	// Save on the server
+		this.awsDataMap.put("Neve_Tzedek" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.awsDataMap.put("Neve_Tzedek" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.awsDataMap.put("Neve_Tzedek" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Neve_Tzedek" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
-		this.amazonAWS.downloadCSV("Afeka.csv");		// Download from data-set
-		this.amazonAWS.saveCSVToData("Afeka.csv");	// Save on the server
-		this.dataToSave.put("Afeka" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
-		this.dataToSave.put("Afeka" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.dataToSave.put("Afeka" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
-		this.dataToSave.put("Afeka" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		this.amazonAWS.readCSVFileToOurMap("Frishman_Beach.csv");	// Save on the server
+		this.awsDataMap.put("Frishman_Beach" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.awsDataMap.put("Frishman_Beach" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.awsDataMap.put("Frishman_Beach" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Frishman_Beach" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
-		this.amazonAWS.downloadCSV("Allenby.csv");		// Download from data-set
-		this.amazonAWS.saveCSVToData("Allenby.csv");	// Save on the server
-		this.dataToSave.put("Allenby" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
-		this.dataToSave.put("Allenby" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.dataToSave.put("Allenby" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
-		this.dataToSave.put("Allenby" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		this.amazonAWS.readCSVFileToOurMap("Sharona_Market.csv");	// Save on the server
+		this.awsDataMap.put("Sharona_Market" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.awsDataMap.put("Sharona_Market" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.awsDataMap.put("Sharona_Market" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Sharona_Market" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
-		this.amazonAWS.downloadCSV("School_area.csv");		// Download from data-set
-		this.amazonAWS.saveCSVToData("School_area.csv");	// Save on the server
-		this.dataToSave.put("School_area" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
-		this.dataToSave.put("School_area" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.dataToSave.put("School_area" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
-		this.dataToSave.put("School_area" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		this.amazonAWS.readCSVFileToOurMap("Afeka.csv");	// Save on the server
+		this.awsDataMap.put("Afeka" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.awsDataMap.put("Afeka" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.awsDataMap.put("Afeka" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Afeka" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
-		this.amazonAWS.downloadCSV("Food_area.csv");		// Download from data-set
-		this.amazonAWS.saveCSVToData("Food_area.csv");	// Save on the server
-		this.dataToSave.put("Food_area" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
-		this.dataToSave.put("Food_area" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.dataToSave.put("Food_area" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
-		this.dataToSave.put("Food_area" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		this.amazonAWS.readCSVFileToOurMap("Allenby.csv");	// Save on the server
+		this.awsDataMap.put("Allenby" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.awsDataMap.put("Allenby" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.awsDataMap.put("Allenby" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Allenby" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
-		this.amazonAWS.downloadCSV("Work_area.csv");		// Download from data-set
-		this.amazonAWS.saveCSVToData("Work_area.csv");	// Save on the server
-		this.dataToSave.put("Work_area" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
-		this.dataToSave.put("Work_area" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.dataToSave.put("Work_area" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
-		this.dataToSave.put("Work_area" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		this.amazonAWS.readCSVFileToOurMap("School.csv");	// Save on the server
+		this.awsDataMap.put("School" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.awsDataMap.put("School" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.awsDataMap.put("School" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("School" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+		this.amazonAWS.readCSVFileToOurMap("Food_area.csv");	// Save on the server
+		this.awsDataMap.put("Food_area" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.awsDataMap.put("Food_area" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.awsDataMap.put("Food_area" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Food_area" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+		this.amazonAWS.readCSVFileToOurMap("Work.csv");	// Save on the server
+		this.awsDataMap.put("Work" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
+		this.awsDataMap.put("Work" + "W", this.amazonAWS.getDataToSave().get("W"));
+		this.awsDataMap.put("Work" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Work" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+	}
+
+	private void deleteFilesFromServer() {
+		try
+        {
+            Files.deleteIfExists(Paths.get("Ichilov_Hospital.csv"));
+            Files.deleteIfExists(Paths.get("Neve_Tzedek.csv"));
+            Files.deleteIfExists(Paths.get("Frishman_Beach.csv"));
+            Files.deleteIfExists(Paths.get("Sharona_Market.csv"));
+            Files.deleteIfExists(Paths.get("Afeka.csv"));
+            Files.deleteIfExists(Paths.get("Allenby.csv"));
+            Files.deleteIfExists(Paths.get("School.csv"));
+            Files.deleteIfExists(Paths.get("Food_area.csv"));
+            Files.deleteIfExists(Paths.get("Work.csv"));
+        }
+        catch(NoSuchFileException e)
+        {
+            System.out.println("** ERROR: No such file exists! **");
+        }
+        catch(DirectoryNotEmptyException e)
+        {
+            System.out.println("** ERROR: Directory isn't empty! **");
+        }
+        catch(IOException e)
+        {
+            System.out.println("** ERROR: Invalid permissions");
+        }
+          
+        System.out.println("Deletion of all files successfully.");
+	}
+
+	private void downloadFilesFromAmazonCloud() {
+		
+		// Download from data-set
+		this.amazonAWS.downloadCSV("Ichilov_Hospital.csv");	
+		this.amazonAWS.downloadCSV("Neve_Tzedek.csv");
+		this.amazonAWS.downloadCSV("Frishman_Beach.csv");
+		this.amazonAWS.downloadCSV("Sharona_Market.csv");
+		this.amazonAWS.downloadCSV("Afeka.csv");
+		this.amazonAWS.downloadCSV("Allenby.csv");
+		this.amazonAWS.downloadCSV("School.csv");
+		this.amazonAWS.downloadCSV("Food_area.csv");
+		this.amazonAWS.downloadCSV("Work.csv");
+
+
+
 		
 	}
 
 	@PostConstruct
 	public void init() {
 		
-		// Ichilov_Hospital
-		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Ichilov_Hospital" + "Lambda"), 
-				this.dataToSave.get("Ichilov_Hospital" + "W"), 
-				this.dataToSave.get("Ichilov_Hospital" + "Wq"), 
-				this.dataToSave.get("Ichilov_Hospital" + "Servers"));
+		// First we will delete all elements
+		deleteAllElements("WePark","avraham@gmail.com");
 		
+		// Ichilov_Hospital
+		this.queueingTheoryIchilovHospitalElement = new QueueingTheory(this.awsDataMap.get("Ichilov_Hospital" + "Lambda"), 
+				this.awsDataMap.get("Ichilov_Hospital" + "W"), 
+				this.awsDataMap.get("Ichilov_Hospital" + "Wq"), 
+				this.awsDataMap.get("Ichilov_Hospital" + "Servers"));
+		
+//		if(getAllElementsByName("WePark", "avraham@gmail.com","Ichilov Hospital",0,10) == null) {
+//			
+//		}
+
 		create(this.projectName, 
 				"avraham@gmail.com", 
 				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
 						, "squre"
-						, "squre01",
+						, "Ichilov Hospital",
 						true,
 						new Date(System.currentTimeMillis()),
 						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
@@ -160,20 +221,20 @@ public class DatabaseElementService implements ElementService {
 							put("top",32.11795); 
 							put("left",34.81906); 
 							put("bottom",32.11614);
-							put("right",34.82120);}}));
+							put("right",34.82120);}}), this.queueingTheoryIchilovHospitalElement );
 
 		
 		// Neve_Tzedek_Neighborhood
-		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Neve_Tzedek_Neighborhood" + "Lambda"), 
-				this.dataToSave.get("Neve_Tzedek_Neighborhood" + "W"), 
-				this.dataToSave.get("Neve_Tzedek_Neighborhood" + "Wq"), 
-				this.dataToSave.get("Neve_Tzedek_Neighborhood" + "Servers"));
+		this.queueingTheoryNeveTzedekElement = new QueueingTheory(this.awsDataMap.get("Neve_Tzedek" + "Lambda"), 
+				this.awsDataMap.get("Neve_Tzedek" + "W"), 
+				this.awsDataMap.get("Neve_Tzedek" + "Wq"), 
+				this.awsDataMap.get("Neve_Tzedek" + "Servers"));
 		
 		create(this.projectName, 
 				"avraham@gmail.com", 
 				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
 						, "squre"
-						, "squre02",
+						, "Neve Tzedek",
 						true,
 						new Date(System.currentTimeMillis()),
 						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
@@ -181,19 +242,19 @@ public class DatabaseElementService implements ElementService {
 							put("top",32.11795); 
 							put("left",34.690); 
 							put("bottom",32.11614);
-							put("right",34.81906);}}));
+							put("right",34.81906);}}), this.queueingTheoryNeveTzedekElement);
 		
-		// Beach
-		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Beach" + "Lambda"), 
-				this.dataToSave.get("Beach" + "W"), 
-				this.dataToSave.get("Beach" + "Wq"), 
-				this.dataToSave.get("Beach" + "Servers"));
+		// Frishman Beach
+		this.queueingTheoryFrishmanBeachElement = new QueueingTheory(this.awsDataMap.get("Frishman_Beach" + "Lambda"), 
+				this.awsDataMap.get("Frishman_Beach" + "W"), 
+				this.awsDataMap.get("Frishman_Beach" + "Wq"), 
+				this.awsDataMap.get("Frishman_Beach" + "Servers"));
 		
 		create(this.projectName, 
 				"avraham@gmail.com", 
 				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
 						, "squre"
-						, "squre03",
+						, "Frishman Beach",
 						true,
 						new Date(System.currentTimeMillis()),
 						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
@@ -201,19 +262,19 @@ public class DatabaseElementService implements ElementService {
 							put("top",32.11795); 
 							put("left",34.81474); 
 							put("bottom",32.11614);
-							put("right",34.8169);}}));
+							put("right",34.8169);}}), this.queueingTheoryFrishmanBeachElement);
 		
-		// Dizengoff_Center_Shopping_Mall
-		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Dizengoff_Center_Shopping_Mall" + "Lambda"), 
-				this.dataToSave.get("Dizengoff_Center_Shopping_Mall" + "W"), 
-				this.dataToSave.get("Dizengoff_Center_Shopping_Mall" + "Wq"), 
-				this.dataToSave.get("Dizengoff_Center_Shopping_Mall" + "Servers"));
+		// Sharona_Market
+		this.queueingTheorySharonaMarketElement = new QueueingTheory(this.awsDataMap.get("Sharona_Market" + "Lambda"), 
+				this.awsDataMap.get("Sharona_Market" + "W"), 
+				this.awsDataMap.get("Sharona_Market" + "Wq"), 
+				this.awsDataMap.get("Sharona_Market" + "Servers"));
 		
 		create(this.projectName, 
 				"avraham@gmail.com", 
 				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
 						, "squre"
-						, "squre04",
+						, "Sharona Market",
 						true,
 						new Date(System.currentTimeMillis()),
 						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
@@ -221,19 +282,19 @@ public class DatabaseElementService implements ElementService {
 							put("top",32.11614); 
 							put("left",34.81906); 
 							put("bottom",32.11433);
-							put("right",34.8212);}}));
+							put("right",34.8212);}}), this.queueingTheorySharonaMarketElement);
 		
 		// Afeka
-		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Afeka" + "Lambda"), 
-				this.dataToSave.get("Afeka" + "W"), 
-				this.dataToSave.get("Afeka" + "Wq"), 
-				this.dataToSave.get("Afeka" + "Servers"));
+		this.queueingTheoryAfekaElement = new QueueingTheory(this.awsDataMap.get("Afeka" + "Lambda"), 
+				this.awsDataMap.get("Afeka" + "W"), 
+				this.awsDataMap.get("Afeka" + "Wq"), 
+				this.awsDataMap.get("Afeka" + "Servers"));
 		
 		create(this.projectName, 
 				"avraham@gmail.com", 
 				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
 						, "squre"
-						, "squre05",
+						, "Afeka",
 						true,
 						new Date(System.currentTimeMillis()),
 						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
@@ -241,19 +302,19 @@ public class DatabaseElementService implements ElementService {
 							put("top",32.11614); 
 							put("left",34.8169); 
 							put("bottom",32.11433);
-							put("right",34.81906);}}));
+							put("right",34.81906);}}), this.queueingTheoryAfekaElement);
 		
 		// Allenby
-		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Allenby" + "Lambda"), 
-				this.dataToSave.get("Allenby" + "W"), 
-				this.dataToSave.get("Allenby" + "Wq"), 
-				this.dataToSave.get("Allenby" + "Servers"));
+		this.queueingTheoryAllenbyElement = new QueueingTheory(this.awsDataMap.get("Allenby" + "Lambda"), 
+				this.awsDataMap.get("Allenby" + "W"), 
+				this.awsDataMap.get("Allenby" + "Wq"), 
+				this.awsDataMap.get("Allenby" + "Servers"));
 		
 		create(this.projectName, 
 				"avraham@gmail.com", 
 				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
 						, "squre"
-						, "squre06",
+						, "Allenby",
 						true,
 						new Date(System.currentTimeMillis()),
 						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
@@ -261,19 +322,19 @@ public class DatabaseElementService implements ElementService {
 							put("top",32.11614); 
 							put("left",34.81474); 
 							put("bottom",32.11433);
-							put("right",34.8169);}}));
+							put("right",34.8169);}}),this.queueingTheoryAllenbyElement);
 		
-		// School_area
-		this.queueingTheory = new QueueingTheory(this.dataToSave.get("School_area" + "Lambda"), 
-				this.dataToSave.get("School_area" + "W"), 
-				this.dataToSave.get("School_area" + "Wq"), 
-				this.dataToSave.get("School_area" + "Servers"));
+		// School
+		this.queueingTheorySchoolElement = new QueueingTheory(this.awsDataMap.get("School" + "Lambda"), 
+				this.awsDataMap.get("School" + "W"), 
+				this.awsDataMap.get("School" + "Wq"), 
+				this.awsDataMap.get("School" + "Servers"));
 		
 		create(this.projectName, 
 				"avraham@gmail.com", 
 				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
 						, "squre"
-						, "squre07",
+						, "School Area",
 						true,
 						new Date(System.currentTimeMillis()),
 						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
@@ -281,19 +342,19 @@ public class DatabaseElementService implements ElementService {
 							put("top",32.11614); 
 							put("left",34.81474); 
 							put("bottom",32.11433);
-							put("right",34.8169);}}));
+							put("right",34.8169);}}), this.queueingTheorySchoolElement);
 		
 		// Food_area
-		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Food_area" + "Lambda"), 
-				this.dataToSave.get("Food_area" + "W"), 
-				this.dataToSave.get("Food_area" + "Wq"), 
-				this.dataToSave.get("Food_area" + "Servers"));
+		this.queueingTheoryFoodAreaElement = new QueueingTheory(this.awsDataMap.get("Food_area" + "Lambda"), 
+				this.awsDataMap.get("Food_area" + "W"), 
+				this.awsDataMap.get("Food_area" + "Wq"), 
+				this.awsDataMap.get("Food_area" + "Servers"));
 		
 		create(this.projectName, 
 				"avraham@gmail.com", 
 				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
 						, "squre"
-						, "squre08",
+						, "Food area",
 						true,
 						new Date(System.currentTimeMillis()),
 						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
@@ -301,19 +362,19 @@ public class DatabaseElementService implements ElementService {
 							put("top",32.11614); 
 							put("left",34.81474); 
 							put("bottom",32.11433);
-							put("right",34.8169);}}));
+							put("right",34.8169);}}), this.queueingTheoryFoodAreaElement);
 		
-		// Work_area
-		this.queueingTheory = new QueueingTheory(this.dataToSave.get("Work_area" + "Lambda"), 
-				this.dataToSave.get("Work_area" + "W"), 
-				this.dataToSave.get("Work_area" + "Wq"), 
-				this.dataToSave.get("Work_area" + "Servers"));
+		// Work
+		this.queueingTheoryWorkElement = new QueueingTheory(this.awsDataMap.get("Work" + "Lambda"), 
+				this.awsDataMap.get("Work" + "W"), 
+				this.awsDataMap.get("Work" + "Wq"), 
+				this.awsDataMap.get("Work" + "Servers"));
 		
 		create(this.projectName, 
 				"avraham@gmail.com", 
 				new ElementBoundary(new ElementId(getProjectName(), UUID.randomUUID().toString())
 						, "squre"
-						, "squre09",
+						, "Work",
 						true,
 						new Date(System.currentTimeMillis()),
 						new CreatedBy(new UserId(this.projectName, "avraham@gmail.com")),
@@ -321,7 +382,7 @@ public class DatabaseElementService implements ElementService {
 							put("top",32.11614); 
 							put("left",34.81474); 
 							put("bottom",32.11433);
-							put("right",34.8169);}}));
+							put("right",34.8169);}}), this.queueingTheoryWorkElement);
 		
 	}
 
@@ -336,7 +397,7 @@ public class DatabaseElementService implements ElementService {
 	}
 
 	@Override
-	public ElementBoundary create(String managerDomain, String managerEmail, ElementBoundary elementBoundary) {
+	public ElementBoundary create(String managerDomain, String managerEmail, ElementBoundary elementBoundary, QueueingTheory queueingTheory) {
 		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
 		// Validate that the important element boundary fields are not null;
 
@@ -358,17 +419,17 @@ public class DatabaseElementService implements ElementService {
 		elementBoundary.getElementAttributes().put("servers", queueingTheory.getServers());
 
 		// Generated values
-		elementBoundary.getElementAttributes().put("generalQuantity", this.queueingTheory.getGeneralQuantity());
+		elementBoundary.getElementAttributes().put("generalQuantity", queueingTheory.getGeneralQuantity());
 		elementBoundary.getElementAttributes().put("averageQueueQuantity_q",
-				this.queueingTheory.getAverageQueueQuantity_q());
-		elementBoundary.getElementAttributes().put("serviceRate", this.queueingTheory.getServiceRate());
+				queueingTheory.getAverageQueueQuantity_q());
+		elementBoundary.getElementAttributes().put("serviceRate", queueingTheory.getServiceRate());
 		elementBoundary.getElementAttributes().put("averageServiceDuration",
-				this.queueingTheory.getAverageServiceDuration());
-		elementBoundary.getElementAttributes().put("overload", this.queueingTheory.getOverload());
+				queueingTheory.getAverageServiceDuration());
+		elementBoundary.getElementAttributes().put("overload", queueingTheory.getOverload());
 		elementBoundary.getElementAttributes().put("getServiceImmediately",
-				this.queueingTheory.getGetServiceImmediately());
-		elementBoundary.getElementAttributes().put("r", this.queueingTheory.getR());
-		elementBoundary.getElementAttributes().put("w_t", this.queueingTheory.getW_t());
+				queueingTheory.getGetServiceImmediately());
+		elementBoundary.getElementAttributes().put("r", queueingTheory.getR());
+		elementBoundary.getElementAttributes().put("w_t", queueingTheory.getW_t());
 
 		// Convert the element boundary to element entity
 		ElementEntity elementEntity = elementConverter.toEntity(elementBoundary);
@@ -449,15 +510,6 @@ public class DatabaseElementService implements ElementService {
 		return elements.get(0);
 	}
 
-//	public static ElementEntity findActiveElement(ElementDao elementDao, String elementId) {
-//		List<ElementEntity> elements = elementDao.findOneByElementIdAndActive(elementId,true,
-//				PageRequest.of(0, 1, Direction.ASC, "elementId"));
-//		if(elements.size() == 0 ) {
-//			throw new ElementNotFoundException("could not find element");
-//		}
-//		return elements.get(0);	
-//	}
-
 	public static ElementEntity findActiveOrInActiveElement(ElementDao elementDao, String elementId) {
 		return elementDao.findById(elementId).orElseThrow(() -> new ElementNotFoundException("could not find element"));
 	}
@@ -479,7 +531,6 @@ public class DatabaseElementService implements ElementService {
 		} else { // Role is ADMIN
 			throw new UserNotFoundException("Not valid operation for ADMIN user");
 		}
-//		return null;
 	}
 
 	@Override
@@ -488,27 +539,6 @@ public class DatabaseElementService implements ElementService {
 		// Clear all elements from DB.
 		this.elementDao.deleteAll();
 	}
-
-//	@Override
-//	public void bindParentElementToChildElement(String managerDomain, String managerEmail, String elementDomain,
-//			String elementId, ElementIdBoundary input) {
-//		// TODO Auto-generated method stub
-//		
-//	}
-
-//	@Override
-//	public Collection<ElementBoundary> getAllChildrenElements(String userDomain, String userEmail, String elementDomain,
-//			String elementId, int size, int page) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
-//	@Override
-//	public Collection<ElementBoundary> getAllOriginsElements(String userDomain, String userEmail, String elementDomain,
-//			String elementId, int size, int page) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
 
 	@Override
 	public List<ElementBoundary> getAll(String userDomain, String userEmail, int size, int page) {
@@ -567,397 +597,5 @@ public class DatabaseElementService implements ElementService {
 		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
 	}
 
-//	@Override
-//	public List<ElementBoundary> getAllElementsByLocation(String userDomain, String userEmail, String lat, String lng,
-//			String distance, int size, int page) {
-//		
-//		double distanceNum = Double.parseDouble(distance);
-//		double latNum = Double.parseDouble(lat);
-//		double lngNum = Double.parseDouble(lng);
-//		
-//		if(distanceNum < 0) {
-//			throw new RuntimeException("Distance can not be negative.");
-//		}
-//
-//		List<ElementEntity> entities;
-//		Double minLat, maxLat, minLng, maxLng;
-//		UserEntity userEntity = DatabaseUserService
-//				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-//
-//		minLat = latNum - distanceNum;
-//		maxLat = latNum + distanceNum;
-//		minLng = lngNum - distanceNum;
-//		maxLng = lngNum + distanceNum;
-//
-//		if (userEntity.getRole() == UserRole.MANAGER) {
-//			entities = this.elementDao.findAllByLocation_LatBetweenAndLocation_LngBetween(minLat, maxLat, minLng,
-//					maxLng, PageRequest.of(page, size, Direction.ASC, "elementId"));
-//		} else if (userEntity.getRole() == UserRole.PLAYER) {
-//			entities = this.elementDao.findAllByLocation_LatBetweenAndLocation_LngBetweenAndActive(minLat, maxLat,
-//					minLng, maxLng, true, PageRequest.of(page, size, Direction.ASC, "elementId"));
-//		} else {
-//			throw new UserNotFoundException("Not valid operation for ADMIN user");
-//		}
-//
-//		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
-//	}
-
-//	private String projectName;
-//	private ElementConverter elementConverter;
-//	private UserConverter userConverter;
-//	private ElementDao elementDao;
-//	private UserDao userDao;
-//
-//	@Autowired
-//	public DatabaseElementService(ElementConverter elementConverter, ElementDao elementDao, UserConverter userConverter,
-//			UserDao userDao) {
-//
-//		super();
-//		this.elementConverter = elementConverter;
-//		this.elementDao = elementDao;
-//		this.userConverter = userConverter;
-//		this.userDao = userDao;
-//	}
-//
-//	@PostConstruct
-//	public void init() {
-//	}
-//
-//	// inject configuration value or inject default value
-//	@Value("${spring.application.name:demo}")
-//	public void setProjectName(String projectName) {
-//		this.projectName = projectName;
-//	}
-//
-//	public String getProjectName() {
-//		return projectName;
-//	}
-//
-//	@Override
-//	@Transactional // (readOnly = false)
-//	public ElementBoundary create(String managerDomain, String managerEmail, ElementBoundary elementBoundary) {
-//
-//		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
-//		// Validate that the important element boundary fields are not null;
-//
-//		elementBoundary.validation();
-//
-//		// Set the element's domain to the project name and create the unique id for the
-//		// element.
-//		elementBoundary.setElementId(new ElementId(getProjectName(), UUID.randomUUID().toString()));
-//
-//		// Set the element's creation date.
-//		elementBoundary.setCreatedTimestamp(new Date(System.currentTimeMillis()));
-//
-//		// Set element's manager details.
-//		elementBoundary.setCreatedBy(new CreatedBy(new UserId(managerDomain, managerEmail)));
-//
-//		// Convert the element boundary to element entity
-//		ElementEntity elementEntity = elementConverter.toEntity(elementBoundary);
-//
-//		// Add to database
-//		this.elementDao.save(elementEntity);
-//
-//		return elementBoundary;
-//
-//	}
-//
-//	@Override
-//	@Transactional // (readOnly = false)
-//	public ElementBoundary update(String managerDomain, String managerEmail, String elementDomain, String elementId,
-//			ElementBoundary update) {
-//
-//		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
-//		// Fetching the specific element from DB.
-//		ElementEntity foundedElement = this.elementDao
-//				.findById(this.elementConverter.convertToEntityId(elementDomain, elementId))
-//				.orElseThrow(() -> new ElementNotFoundException("could not find element"));
-//
-//		// Convert the input to entity before update the values in element entity that
-//		// is in the DB.
-//		ElementEntity updateEntity = elementConverter.toEntity(update);
-//
-//		// Update the element's values.
-//		updateElementValues(foundedElement, updateEntity);
-//
-//		// save updated element to the database
-//		this.elementDao.save(foundedElement);
-//
-//		// Convert the update entity to boundary and returns it.
-//		return elementConverter.fromEntity(foundedElement);
-//
-//	}
-//
-//	// Old version
-//	@Override
-//	@Transactional(readOnly = true)
-//	public List<ElementBoundary> getAll(String userDomain, String userEmail) {
-////		UserEntity userEntity = DatabaseUserService
-////				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-////		if (userEntity.getRole() == UserRole.MANAGER) {
-////		
-////			return StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
-////					.map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
-////					.collect(Collectors.toList());
-////		} else if (userEntity.getRole() == UserRole.PLAYER) {
-////			
-////			return StreamSupport.stream(this.elementDao.findAll().spliterator(), false) // Stream<ElementEntity>
-////					.filter(user -> user.getActive()).map(this.elementConverter::fromEntity) // Stream<ElementBoundary>
-////					.collect(Collectors.toList());
-////		} else { // Role is ADMIN
-////			
-////			throw new UserNotFoundException("Not valid operation for ADMIN user");
-////		}
-//		return null;
-//	}
-//
-//	@Override
-//	@Transactional(readOnly = true)
-//	public ElementBoundary getSpecificElement(String userDomain, String userEmail, String elementDomain,
-//			String elementId) {
-//		ElementEntity foundedElement;
-//		UserEntity userEntity = DatabaseUserService
-//				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-//
-//		foundedElement = getSpecificElementWithPermission(
-//				this.elementConverter.convertToEntityId(elementDomain, elementId), userEntity.getRole());
-//
-//		return elementConverter.fromEntity(foundedElement);
-//
-//	}
-//
-//	
-//	@Override
-//	@Transactional // (readOnly = false)
-//	public void deleteAllElements(String adminDomain, String adminEmail) {
-//		DatabaseUserService.checkRole(adminDomain, adminEmail, UserRole.ADMIN, userDao, userConverter);
-//		// Clear all elements from DB.
-//		this.elementDao.deleteAll();
-//
-//	}
-//
-//	private void updateElementValues(ElementEntity toBeUpdatedEntity, ElementEntity inputEntity) {
-//
-//		// Copy the important values from update entity to toBeUpdateEntity only if they
-//		// are not null
-//		toBeUpdatedEntity.setActive(inputEntity.getActive());
-//		toBeUpdatedEntity.setElementAttributes(inputEntity.getElementAttributes());
-//		toBeUpdatedEntity.setLocation(inputEntity.getLocation());
-//		toBeUpdatedEntity.setName(inputEntity.getName());
-//		toBeUpdatedEntity.setType(inputEntity.getType());
-//
-//	}
-//
-//	@Override
-//	@Transactional // (readOnly = false)
-//	public void bindParentElementToChildElement(String managerDomain, String managerEmail, String elementDomain,
-//			String elementId, ElementIdBoundary elementIdBoundary) {
-//
-//		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
-//
-//		ElementEntity originElement = this.elementDao
-//				.findById(this.elementConverter.convertToEntityId(elementDomain, elementId))
-//				.orElseThrow(() -> new ElementNotFoundException("could not find origin by id: " + elementId));
-//
-//		ElementEntity childElement = this.elementDao
-//				.findById(this.elementConverter.convertToEntityId(elementIdBoundary.getDomain(),
-//						elementIdBoundary.getId()))
-//				.orElseThrow(
-//						() -> new ElementNotFoundException("could not find child by id: " + elementIdBoundary.getId()));
-//
-//		originElement.addChildElement(childElement);
-//		this.elementDao.save(originElement);
-//	}
-//
-//	@Override
-//	@Transactional(readOnly = true)
-//	public Collection<ElementBoundary> getAllChildrenElements(String userDomain, String userEmail, String elementDomain,
-//			String elementId, int size, int page) {
-//
-//		UserEntity userEntity = DatabaseUserService
-//				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-//		Set<ElementEntity> entities;
-//		ElementEntity originElement;
-//		if (userEntity.getRole() == UserRole.MANAGER) {
-//			originElement = findActiveOrInActiveElement(elementDao, this.elementConverter.convertToEntityId(elementDomain, elementId));
-//			entities = elementDao.findAllByOrigin(originElement, PageRequest.of(page, size, Direction.ASC, "elementId")).stream().collect(Collectors.toSet());
-//		} else if (userEntity.getRole() == UserRole.PLAYER) {
-//			originElement = findActiveElement(elementDao, this.elementConverter.convertToEntityId(elementDomain, elementId));
-//			entities = elementDao.findAllByOriginAndActive(originElement,true, PageRequest.of(page, size, Direction.ASC, "elementId")).stream().collect(Collectors.toSet());
-//		} else {
-//			throw new UserNotFoundException("Not valid operation for ADMIN user");
-//		}
-//		return entities.stream().map(elementConverter::fromEntity).collect(Collectors.toList());
-//
-//	}
-//
-//	@Override
-//	@Transactional(readOnly = true)
-//	public Collection<ElementBoundary> getAllOriginsElements(String userDomain, String userEmail, String elementDomain,
-//			String elementId, int size, int page) {
-//		ElementEntity reply;
-//		UserEntity userEntity = DatabaseUserService
-//				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-//
-//		reply = getSpecificElementWithPermission(this.elementConverter.convertToEntityId(elementDomain, elementId),
-//				userEntity.getRole());
-//
-//		ElementEntity origin = reply.getOrigin();
-//		Set<ElementBoundary> rv = new HashSet<>();
-//
-//		if (origin != null) {
-//			if(userEntity.getRole() == UserRole.MANAGER) {
-//				rv.add(this.elementConverter.fromEntity(origin));
-//			}else if(userEntity.getRole() == UserRole.PLAYER) {
-//				if(origin.getActive()) {
-//					rv.add(this.elementConverter.fromEntity(origin));
-//				}
-//			}
-//		}
-//
-//		return rv;
-//	}
-//
-//	@Override
-//	@Transactional(readOnly = true)
-//	public List<ElementBoundary> getAll(String userDomain, String userEmail, int size, int page) {
-//
-//		UserEntity userEntity = DatabaseUserService
-//				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-//
-//		List<ElementEntity> entities;
-//
-//		if (userEntity.getRole() == UserRole.MANAGER) {
-//			entities = this.elementDao.findAll(PageRequest.of(page, size, Direction.ASC, "elementId")).getContent();
-//		} else if (userEntity.getRole() == UserRole.PLAYER) {
-//			entities = this.elementDao.findAllByActive(true, PageRequest.of(page, size, Direction.ASC, "elementId"));
-//		} else {
-//			throw new UserNotFoundException("Not valid operation for ADMIN user");
-//		}
-//
-//		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
-//
-//	}
-//
-//	@Override
-//	@Transactional(readOnly = true)
-//	public List<ElementBoundary> getAllElementsByName(String userDomain, String userEmail, String name, int size,
-//			int page) {
-//
-//		UserEntity userEntity = DatabaseUserService
-//				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-//
-//		List<ElementEntity> entities;
-//
-//		if (userEntity.getRole() == UserRole.MANAGER) {
-//			entities = this.elementDao.findAllByNameLike(name, PageRequest.of(page, size, Direction.ASC, "elementId"));
-//		} else if (userEntity.getRole() == UserRole.PLAYER) {
-//			entities = this.elementDao.findAllByNameLikeAndActive(name, true,
-//					PageRequest.of(page, size, Direction.ASC, "elementId"));
-//		} else {
-//			throw new UserNotFoundException("Not valid operation for ADMIN user");
-//		}
-//
-//		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
-//
-//	}
-//
-//	@Override
-//	@Transactional(readOnly = true)
-//	public List<ElementBoundary> getAllElementsByType(String userDomain, String userEmail, String type, int size,
-//			int page) {
-//
-//		List<ElementEntity> entities;
-//		UserEntity userEntity = DatabaseUserService
-//				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-//
-//		if (userEntity.getRole() == UserRole.MANAGER) {
-//			entities = this.elementDao.findAllByTypeLike(type, PageRequest.of(page, size, Direction.ASC, "elementId"));
-//		} else if (userEntity.getRole() == UserRole.PLAYER) {
-//			entities = this.elementDao.findAllByTypeLikeAndActive(type, true,
-//					PageRequest.of(page, size, Direction.ASC, "elementId"));
-//		} else {
-//			throw new UserNotFoundException("Not valid operation for ADMIN user");
-//		}
-//
-//		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
-//
-//	}
-//
-//	@Override
-//	@Transactional(readOnly = true)
-//	public List<ElementBoundary> getAllElementsByLocation(String userDomain, String userEmail, String lat, String lng,
-//			String distance, int size, int page) {
-//		
-//		double distanceNum = Double.parseDouble(distance);
-//		double latNum = Double.parseDouble(lat);
-//		double lngNum = Double.parseDouble(lng);
-//		
-//		if(distanceNum < 0) {
-//			throw new RuntimeException("Distance can not be negative.");
-//		}
-//
-//		List<ElementEntity> entities;
-//		Double minLat, maxLat, minLng, maxLng;
-//		UserEntity userEntity = DatabaseUserService
-//				.getUserEntityFromDatabase(this.userConverter.convertToEntityId(userDomain, userEmail), userDao);
-//
-//		minLat = latNum - distanceNum;
-//		maxLat = latNum + distanceNum;
-//		minLng = lngNum - distanceNum;
-//		maxLng = lngNum + distanceNum;
-//
-//		if (userEntity.getRole() == UserRole.MANAGER) {
-//			entities = this.elementDao.findAllByLocation_LatBetweenAndLocation_LngBetween(minLat, maxLat, minLng,
-//					maxLng, PageRequest.of(page, size, Direction.ASC, "elementId"));
-//		} else if (userEntity.getRole() == UserRole.PLAYER) {
-//			entities = this.elementDao.findAllByLocation_LatBetweenAndLocation_LngBetweenAndActive(minLat, maxLat,
-//					minLng, maxLng, true, PageRequest.of(page, size, Direction.ASC, "elementId"));
-//		} else {
-//			throw new UserNotFoundException("Not valid operation for ADMIN user");
-//		}
-//
-//		return entities.stream().map(this.elementConverter::fromEntity).collect(Collectors.toList());
-//
-//	}
-//
-//
-//	private ElementEntity getSpecificElementWithPermission(String elementId, UserRole role) {
-//		if (role == UserRole.MANAGER) {
-//			// Fetching the specific element from DB.
-//			return findActiveOrInActiveElement(elementDao, elementId);
-//		} else if (role == UserRole.PLAYER) {
-//			return findActiveElement(elementDao, elementId);
-//
-//		} else { // Role is ADMIN
-//			throw new UserNotFoundException("Not valid operation for ADMIN user");
-//		}
-//
-//	}
-//
-//	
-//	public static ElementEntity findActiveElement(ElementDao elementDao, String elementId) {
-//		List<ElementEntity> elements = elementDao.findOneByElementIdAndActive(elementId,true,
-//				PageRequest.of(0, 1, Direction.ASC, "elementId"));
-//		if(elements.size() == 0 ) {
-//			throw new ElementNotFoundException("could not find element");
-//		}
-//		return elements.get(0);	
-//	}
-//
-//	public static ElementEntity findActiveOrInActiveElement(ElementDao elementDao, String elementId) {
-//		return elementDao.findById(elementId).orElseThrow(() -> new ElementNotFoundException("could not find element"));
-//	}
-//
-////	public static List<ElementBoundary> findActiveElements(Collection<ElementEntity> entities, ElementDao elementDao,
-////			ElementConverter elementConverter) {
-////		return entities.stream().filter(elementEntity -> elementEntity.getActive()).map(elementConverter::fromEntity)
-////				.collect(Collectors.toList());
-////	}
-////
-////	public static List<ElementBoundary> findActiveAndInActiveElements(Collection<ElementEntity> entities,
-////			ElementDao elementDao, ElementConverter elementConverter) {
-////		return entities.stream().map(elementConverter::fromEntity).collect(Collectors.toList());
-////	}
 
 }

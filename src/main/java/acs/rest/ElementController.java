@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import acs.boundaries.ElementBoundary;
 import acs.logic.ElementService;
+import acs.logic.util.QueueingTheory;
 
 @RestController
 public class ElementController {
@@ -31,7 +32,7 @@ public class ElementController {
 			@PathVariable("managerEmail") String managerEmail, 
 			@RequestBody ElementBoundary input) {
 
-		return elementService.create(managerDomain, managerEmail, input);
+		return elementService.create(managerDomain, managerEmail, input, new QueueingTheory());
 	}
 
 	/*--------------------- GET APIS ------------------- */

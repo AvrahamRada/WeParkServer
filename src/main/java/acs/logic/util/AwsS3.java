@@ -127,8 +127,10 @@ public class AwsS3 {
 		}
 	}
 	
-	// Save CSV file to our mongoDB database
-	public void saveCSVToData(String file) {
+	
+	
+	// read CSV file to our map
+	public void readCSVFileToOurMap(String file) {
 		double count;
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
