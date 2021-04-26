@@ -127,28 +127,82 @@ public class AwsS3 {
 		}
 	}
 	
-	
-	
 	// read CSV file to our map
 	public void readCSVFileToOurMap(String file) {
-		double count;
+		double countW = 0;
+		double countW_q = 0;
+		double countLambda = 0;
+		double countServers = 0;
+		double totalCount = 0;
+		
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(file));
+			BufferedReader br = new BufferedReader(new FileReader(file)); // Open CSV file
+			line = br.readLine(); // Read the headers (W,Wq,Lambda,Servers)
+			line = line.replaceAll("\\uFEFF", ""); // fix the bug i faced
+//			String[] headers = line.split(",");
+//			String W = headers[0].trim();
+//			String Wq = headers[1].trim();
+//			String Lambda = headers[2].trim();
+//			String Servers = headers[3].trim();
+			line = "";
 			while ((line = br.readLine()) != null) { // read line from CSV file
-				count = 0;
+
+				totalCount = totalCount + 1;
+				
 				line = line.replaceAll("\\uFEFF", ""); // fix the bug i faced
 				String[] data = line.split(",");
-				for (int i = 1; i < data.length; i++) {
-					count = count + Double.parseDouble(data[i].trim());
+				for (int i = 0; i < data.length; i++) {
+					
+					if (i == 0)
+						countW = countW + Double.parseDouble(data[i].trim());
+					else if (i == 1)
+						countW_q = countW_q + Double.parseDouble(data[i].trim());
+					else if (i == 2)
+						countLambda = countLambda + Double.parseDouble(data[i].trim());
+					else
+						countServers = countServers + Double.parseDouble(data[i].trim());
+						
 				}
-//				System.err.println("**** average of " + data[0].trim() + " :" + (count/data.length-1));
-				this.dataToSave.put(data[0].trim(), count / (data.length - 1));
+				
+				this.dataToSave.put("W", countW / totalCount);
+				this.dataToSave.put("Q", countW_q / totalCount);
+				this.dataToSave.put("Lambda", countLambda / totalCount);
+				this.dataToSave.put("Servers", countServers / totalCount);
+				
+//				this.dataToSave.put(W, countW / totalCount);
+//				this.dataToSave.put(Wq, countW_q / totalCount);
+//				this.dataToSave.put(Lambda, countLambda / totalCount);
+//				this.dataToSave.put(Servers, countServers / totalCount);
 			}
-			br.close();
+			
+			br.close(); // Close CSV file
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	
+//	// read CSV file to our map
+//	public void readCSVFileToOurMap(String file) {
+//		double count;
+//		try {
+//			BufferedReader br = new BufferedReader(new FileReader(file));
+//			while ((line = br.readLine()) != null) { // read line from CSV file
+//				count = 0;
+//				line = line.replaceAll("\\uFEFF", ""); // fix the bug i faced
+//				String[] data = line.split(",");
+//				for (int i = 1; i < data.length; i++) {
+//					count = count + Double.parseDouble(data[i].trim());
+//				}
+////				System.err.println("**** average of " + data[0].trim() + " :" + (count/data.length-1));
+//				this.dataToSave.put(data[0].trim(), count / (data.length - 1));
+//			}
+//			br.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 //	// Giron - upload
 //	public void uploadCSV(String file) {

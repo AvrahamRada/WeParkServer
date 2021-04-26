@@ -93,55 +93,55 @@ public class DatabaseElementService implements ElementService {
 		this.amazonAWS.readCSVFileToOurMap("Ichilov_Hospital.csv");		
 		this.awsDataMap.put("Ichilov_Hospital" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
 		this.awsDataMap.put("Ichilov_Hospital" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.awsDataMap.put("Ichilov_Hospital" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Ichilov_Hospital" + "Wq", this.amazonAWS.getDataToSave().get("Q"));
 		this.awsDataMap.put("Ichilov_Hospital" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
 		this.amazonAWS.readCSVFileToOurMap("Neve_Tzedek.csv");	// Save on the server
 		this.awsDataMap.put("Neve_Tzedek" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
 		this.awsDataMap.put("Neve_Tzedek" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.awsDataMap.put("Neve_Tzedek" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Neve_Tzedek" + "Wq", this.amazonAWS.getDataToSave().get("Q"));
 		this.awsDataMap.put("Neve_Tzedek" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
 		this.amazonAWS.readCSVFileToOurMap("Frishman_Beach.csv");	// Save on the server
 		this.awsDataMap.put("Frishman_Beach" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
 		this.awsDataMap.put("Frishman_Beach" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.awsDataMap.put("Frishman_Beach" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Frishman_Beach" + "Wq", this.amazonAWS.getDataToSave().get("Q"));
 		this.awsDataMap.put("Frishman_Beach" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
 		this.amazonAWS.readCSVFileToOurMap("Sharona_Market.csv");	// Save on the server
 		this.awsDataMap.put("Sharona_Market" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
 		this.awsDataMap.put("Sharona_Market" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.awsDataMap.put("Sharona_Market" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Sharona_Market" + "Wq", this.amazonAWS.getDataToSave().get("Q"));
 		this.awsDataMap.put("Sharona_Market" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
 		this.amazonAWS.readCSVFileToOurMap("Afeka.csv");	// Save on the server
 		this.awsDataMap.put("Afeka" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
 		this.awsDataMap.put("Afeka" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.awsDataMap.put("Afeka" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Afeka" + "Wq", this.amazonAWS.getDataToSave().get("Q"));
 		this.awsDataMap.put("Afeka" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
 		this.amazonAWS.readCSVFileToOurMap("Allenby.csv");	// Save on the server
 		this.awsDataMap.put("Allenby" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
 		this.awsDataMap.put("Allenby" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.awsDataMap.put("Allenby" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Allenby" + "Wq", this.amazonAWS.getDataToSave().get("Q"));
 		this.awsDataMap.put("Allenby" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
 		this.amazonAWS.readCSVFileToOurMap("School.csv");	// Save on the server
 		this.awsDataMap.put("School" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
 		this.awsDataMap.put("School" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.awsDataMap.put("School" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("School" + "Wq", this.amazonAWS.getDataToSave().get("Q"));
 		this.awsDataMap.put("School" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
 		this.amazonAWS.readCSVFileToOurMap("Food_area.csv");	// Save on the server
 		this.awsDataMap.put("Food_area" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
 		this.awsDataMap.put("Food_area" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.awsDataMap.put("Food_area" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Food_area" + "Wq", this.amazonAWS.getDataToSave().get("Q"));
 		this.awsDataMap.put("Food_area" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
 		this.amazonAWS.readCSVFileToOurMap("Work.csv");	// Save on the server
 		this.awsDataMap.put("Work" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
 		this.awsDataMap.put("Work" + "W", this.amazonAWS.getDataToSave().get("W"));
-		this.awsDataMap.put("Work" + "Wq", this.amazonAWS.getDataToSave().get("Wq"));
+		this.awsDataMap.put("Work" + "Wq", this.amazonAWS.getDataToSave().get("Q"));
 		this.awsDataMap.put("Work" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
 		
 	}
@@ -204,10 +204,7 @@ public class DatabaseElementService implements ElementService {
 				this.awsDataMap.get("Ichilov_Hospital" + "W"), 
 				this.awsDataMap.get("Ichilov_Hospital" + "Wq"), 
 				this.awsDataMap.get("Ichilov_Hospital" + "Servers"));
-		
-//		if(getAllElementsByName("WePark", "avraham@gmail.com","Ichilov Hospital",0,10) == null) {
-//			
-//		}
+
 
 		create(this.projectName, 
 				"avraham@gmail.com", 
