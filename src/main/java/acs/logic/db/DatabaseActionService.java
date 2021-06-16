@@ -164,7 +164,7 @@ public class DatabaseActionService implements ActionService {
 
 			fileName = getFileNameByElementName(elementEntity.getName());
 
-			amazonAWS.writeDataToCsvFile(fileName, new String[] { "-1", Wq + "", "-1", "-1" });
+			amazonAWS.writeDataToCsvFile(fileName, new String[] { "0", Wq + "", "0", "0" });
 
 			amazonAWS.deleteFile(fileName);
 
@@ -207,7 +207,7 @@ public class DatabaseActionService implements ActionService {
 
 			fileName = getFileNameByElementName(elementEntity.getName());
 
-			amazonAWS.writeDataToCsvFile(fileName, new String[] { W + "", "-1", "-1", "-1" });
+			amazonAWS.writeDataToCsvFile(fileName, new String[] { W + "", "0", "0", "0" });
 
 			amazonAWS.deleteFile(fileName);
 
