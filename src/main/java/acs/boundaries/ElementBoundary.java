@@ -2,13 +2,8 @@ package acs.boundaries;
 
 import java.util.Date;
 import java.util.Map;
-
-import javax.management.RuntimeErrorException;
-
 import acs.util.CreatedBy;
-import acs.util.ElementAttributes;
 import acs.util.ElementId;
-import acs.util.Location;
 
 public class ElementBoundary {
 
@@ -83,7 +78,7 @@ public class ElementBoundary {
 	public void setCreatedBy(CreatedBy createdBy) {
 		this.createdBy = createdBy;
 	}
-	
+
 	public Map<String, Object> getElementAttributes() {
 		return elementAttributes;
 	}
@@ -104,8 +99,8 @@ public class ElementBoundary {
 		if (active == null) {
 			throw new RuntimeException("active was not instantiate");
 		}
-		
-		if(elementAttributes == null) {
+
+		if (elementAttributes == null) {
 			throw new RuntimeException("elementAttributes was not instantiate");
 
 		}
@@ -116,5 +111,5 @@ public class ElementBoundary {
 			}
 		}
 
-	}	
+	}
 }

@@ -31,10 +31,10 @@ public class ElementId {
 	}
 
 	public void validation() {
-		if(this.domain == null) {
+		if (this.domain == null) {
 			throw new RuntimeException("\n** ERROR ** \nelementId.domain is NULL.");
 		}
-		if(this.id == null) {
+		if (this.id == null) {
 			throw new RuntimeException("\n** ERROR ** \nelementId.id is NULL.");
 		}
 	}

@@ -2,26 +2,24 @@ package acs.boundaries;
 
 import java.util.Date;
 import java.util.Map;
-
-import acs.util.ActionAttributes;
 import acs.util.ActionId;
 import acs.util.Element;
 import acs.util.InvokedBy;
 
 public class ActionBoundary {
-	
+
 	private ActionId actionId;
 	private String type;
 	private Element element;
 	private Date createdTimestamp;
 	private InvokedBy invokedBy;
-	private Map<String,Object> actionAttributes;
-	
+	private Map<String, Object> actionAttributes;
+
 	public ActionBoundary() {
 	}
-	
+
 	public ActionBoundary(ActionId actionId, String type, Element element, Date createdTimestamp, InvokedBy invokedBy,
-			Map<String,Object> actionAttributes) {
+			Map<String, Object> actionAttributes) {
 		super();
 		this.actionId = actionId;
 		this.type = type;
@@ -71,34 +69,34 @@ public class ActionBoundary {
 		this.invokedBy = invokedBy;
 	}
 
-	public Map<String,Object> getActionAttributes() {
+	public Map<String, Object> getActionAttributes() {
 		return actionAttributes;
 	}
 
-	public void setActionAttributes(Map<String,Object> actionAttributes) {
+	public void setActionAttributes(Map<String, Object> actionAttributes) {
 		this.actionAttributes = actionAttributes;
 	}
 
 	public void validation() {
-		
+
 		if (this.type == null) {
 			throw new RuntimeException("** ERROR ** | type of ActionBoundary is NULL");
 		}
 
 		this.element.validation();
-		if(this.invokedBy == null) {
+		if (this.invokedBy == null) {
 			throw new RuntimeException("invokedBy was not instantiate");
 		}
 		this.invokedBy.validation();
-		
-		if(this.actionAttributes == null) {
+
+		if (this.actionAttributes == null) {
 			throw new RuntimeException("actionAttributes was not instantiate");
 		}
-		
+
 		for (Map.Entry<String, Object> entry : actionAttributes.entrySet()) {
 			if (entry.getValue() == null) {
 				throw new RuntimeException("value in actionAttributes was not instantiate");
 			}
 		}
-	}	
+	}
 }

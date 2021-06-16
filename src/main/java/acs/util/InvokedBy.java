@@ -1,9 +1,5 @@
 package acs.util;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
-
-//@Embeddable
 public class InvokedBy {
 	
 	private UserId userId;
@@ -16,7 +12,6 @@ public class InvokedBy {
 		this.userId = userId;
 	}
 
-//	@Embedded
 	public UserId getUserId() {
 		return userId;
 	}

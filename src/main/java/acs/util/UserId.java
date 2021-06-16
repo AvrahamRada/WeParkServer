@@ -4,8 +4,8 @@ import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
 
 public class UserId {
 
-	private String domain; // DOMAIN VARCHAR(255)
-	private String email;  // EMAIL VARCHAR(255)
+	private String domain;
+	private String email;
 
 	public UserId() {
 	}
@@ -31,7 +31,7 @@ public class UserId {
 	}
 
 	public void setEmail(String email) {
-		if(email != null) {
+		if (email != null) {
 			this.email = email;
 		}
 	}
@@ -41,14 +41,14 @@ public class UserId {
 		if (this.domain == null) {
 			throw new RuntimeException("\n** ERROR ** \nUserId.domain is NULL.\n");
 		}
-		
+
 		if (this.email == null) {
 			throw new RuntimeException("\n** ERROR ** \nUserId.email is NULL.\n");
 		}
-		
+
 		if (!new EmailValidator().isValid(email, null) || email.isEmpty() || email.contains("#")) {
-            throw new RuntimeException("\n** ERROR ** \nThe email is not in a valid format");
-        }
+			throw new RuntimeException("\n** ERROR ** \nThe email is not in a valid format");
+		}
 
 	}
 

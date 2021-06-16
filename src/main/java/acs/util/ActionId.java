@@ -1,13 +1,13 @@
 package acs.util;
 
 public class ActionId {
-	
+
 	private String domain;
 	private String id;
-	
+
 	public ActionId() {
 	}
-	
+
 	public ActionId(String domain, String id) {
 		super();
 		this.domain = domain;

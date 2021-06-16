@@ -8,7 +8,6 @@ import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-//import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -19,11 +18,7 @@ import javax.persistence.TemporalType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-//import org.springframework.data.mongodb.core.mapping.DBRef;
-//import org.springframework.data.mongodb.core.mapping.Document;
-
 import acs.util.CreatedBy;
-import acs.util.Location;
 
 //@Entity
 //@Table(name="ELEMENTS")
@@ -38,8 +33,6 @@ public class ElementEntity {
 	private Date createdTimestamp; 					// CREATED_TIME_STAMP TIMESTAMP
 	private String createdBy; 						// DOMAIN VARCHAR(255)
 													// ID VARCHAR(255)
-//	private Location location; 						// LAT DOUBLE
-							  						// LNG DOUBLE
 	private Map<String, Object> elementAttributes; 	// ELEMENT_ATTRIBUTES CLOB
 
 	// add another entity collection related to this one using ONE-TO-MANY relationship
@@ -52,11 +45,10 @@ public class ElementEntity {
 		
 
 	public ElementEntity() {
-//		this.location = new Location();
 	}
 
 	public ElementEntity(String elementId, String type, String name, Boolean active, Date createdTimestamp,
-			String createdBy, Location location, Map<String, Object> elementAttributes) {
+			String createdBy, Map<String, Object> elementAttributes) {
 		super();
 		this.elementId = elementId;
 		this.type = type;
@@ -64,7 +56,6 @@ public class ElementEntity {
 		this.active = active;
 		this.createdTimestamp = createdTimestamp;
 		this.createdBy = createdBy;
-//		this.location = location;
 		this.elementAttributes = elementAttributes;
 	}
 	
@@ -107,7 +98,6 @@ public class ElementEntity {
 		}
 	}
 	
-//	@Temporal(TemporalType.TIMESTAMP)
 	public Date getCreatedTimestamp() {
 		return createdTimestamp;
 	}
@@ -126,20 +116,7 @@ public class ElementEntity {
 		this.createdBy = createdBy;
 
 	}
-//	@Embedded
-//	public Location getLocation() {
-//		return location;
-//	}
-//
-//	public void setLocation(Location location) {
-//
-//		if (location != null) {
-//			this.location.setLat(location.getLat());
-//			this.location.setLng(location.getLng());
-//		}
-//	}
-//	@Lob
-//	@Convert(converter = acs.logic.util.MapToJsonConverter.class)
+
 	public Map<String, Object> getElementAttributes() {
 		return elementAttributes;
 	}
@@ -154,35 +131,4 @@ public class ElementEntity {
 			this.elementAttributes = elementAttributes;
 		}
 	}
-	
-	//@OneToMany(mappedBy = "origin", fetch = FetchType.LAZY)
-//	public Set<ElementEntity> getChildrenElements() {
-//		return childrenElements;
-//	}
-//	
-//	public void setChildrenElements(Set<ElementEntity> childrenElements) {
-//		this.childrenElements = childrenElements;
-//	}
-//	
-//	public void addChildElement(ElementEntity child) {
-//		this.childrenElements.add(child);
-//		child.setOrigin(this);
-//	}
-//	
-//	//@ManyToOne(fetch = FetchType.LAZY)
-//	public ElementEntity getOrigin() {
-//		return origin;
-//	}
-//	
-//	public void setOrigin(ElementEntity origin) {
-//		this.origin = origin;
-//	}
-	
-//	// i added toString method
-//	@Override
-//	public String toString() {
-//		return "ElementEntity [elementId=" + this.elementId + ", type=" + this.type + ", name=" + this.name + ", active=" + this.active
-//				+ ", creacteTimestamp=" + this.createdTimestamp + ", createdBy=" + this.createdBy + ", location=" + this.location
-//				+ ", elementAttributes=" + this.elementAttributes + "]";
-//	}
 }

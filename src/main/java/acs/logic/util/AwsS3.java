@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.opencsv.CSVWriter;
 
 public class AwsS3 {
 	private String ACCESS_KEY_ID = "AKIATMLKY7FE3DVIVKFL";
@@ -75,6 +77,17 @@ public class AwsS3 {
 				System.err.println(e.getErrorMessage());
 			}
 	}
+	
+	// delete file
+	public void deleteFile(String fileName) {
+		// Object = Folder
+			try {
+				s3client.deleteObject(bucketName, fileName);
+			} catch (AmazonS3Exception e) {
+				System.err.println(e.getErrorMessage());
+				System.exit(1);
+			}
+	}
 
 	// print the list of buckets we have on AWS S3 Amazon
  	public void listOfBuckets() {
@@ -90,9 +103,9 @@ public class AwsS3 {
 	}
 
 	// Upload CSV file to AWS S3 Amazon
-	public void uploadFile(String bucketNamee, String keyName, String filePath) {
+	public void uploadFile(String keyName, String fileName) {
 		try {
-			s3client.putObject(bucketNamee, keyName, new File(filePath));
+			s3client.putObject(bucketName, keyName, new File(fileName));
 		} catch (AmazonS3Exception e) {
 			System.err.println(e.getErrorMessage());
 			System.exit(1);
@@ -135,20 +148,18 @@ public class AwsS3 {
 		double countServers = 0;
 		double totalCount = 0;
 		
+		double currentAvgOfW;
+		double currentAvgOfW_q;
+		double currentAvgOfLambda;
+		double currentAvgOfServers;
+		
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file)); // Open CSV file
 			line = br.readLine(); // Read the headers (W,Wq,Lambda,Servers)
-			line = line.replaceAll("\\uFEFF", ""); // fix the bug i faced
-//			String[] headers = line.split(",");
-//			String W = headers[0].trim();
-//			String Wq = headers[1].trim();
-//			String Lambda = headers[2].trim();
-//			String Servers = headers[3].trim();
+//			line = line.replaceAll("\\uFEFF", ""); // fix the bug i faced
 			line = "";
-			while ((line = br.readLine()) != null) { // read line from CSV file
-
+			while ((line = br.readLine()) != null && totalCount < 100) { // read line from CSV file
 				totalCount = totalCount + 1;
-				
 				line = line.replaceAll("\\uFEFF", ""); // fix the bug i faced
 				String[] data = line.split(",");
 				for (int i = 0; i < data.length; i++) {
@@ -161,24 +172,103 @@ public class AwsS3 {
 						countLambda = countLambda + Double.parseDouble(data[i].trim());
 					else
 						countServers = countServers + Double.parseDouble(data[i].trim());
-						
+				}
+			}
+			
+			currentAvgOfW = countW / totalCount;
+			currentAvgOfW_q = countW_q / totalCount;
+			currentAvgOfLambda = countLambda / totalCount;
+			currentAvgOfServers = countServers;
+			
+			while (line != null) { // read line from CSV file
+				totalCount = totalCount + 1;
+				line = line.replaceAll("\\uFEFF", ""); // fix the bug i faced
+				String[] data = line.split(",");
+				for (int i = 0; i < data.length; i++) {
+					
+					if (i == 0)
+						currentAvgOfW = calcuateWeightedAvg(currentAvgOfW, Double.parseDouble(data[i].trim()));
+					else if (i == 1)
+						currentAvgOfW_q = calcuateWeightedAvg(currentAvgOfW_q, Double.parseDouble(data[i].trim()));
+					else if (i == 2)
+						currentAvgOfLambda = calcuateWeightedAvg(currentAvgOfLambda, Double.parseDouble(data[i].trim()));
+//					else
+//						countServers = countServers + Double.parseDouble(data[i].trim());
 				}
 				
-				this.dataToSave.put("W", countW / totalCount);
-				this.dataToSave.put("Q", countW_q / totalCount);
-				this.dataToSave.put("Lambda", countLambda / totalCount);
-				this.dataToSave.put("Servers", countServers / totalCount);
-				
-//				this.dataToSave.put(W, countW / totalCount);
-//				this.dataToSave.put(Wq, countW_q / totalCount);
-//				this.dataToSave.put(Lambda, countLambda / totalCount);
-//				this.dataToSave.put(Servers, countServers / totalCount);
+				line = br.readLine();
 			}
+			
+			this.dataToSave.put("W", currentAvgOfW);
+			this.dataToSave.put("Q", currentAvgOfW_q);
+			this.dataToSave.put("Lambda", currentAvgOfLambda);
+			this.dataToSave.put("Servers", currentAvgOfServers);
 			
 			br.close(); // Close CSV file
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public double calcuateWeightedAvg(double currentAvg, double otherResult) {
+		if (otherResult < 0)
+			return currentAvg;
+		return ((currentAvg * 100) + otherResult) / 101;
+	}
+		
+//	// read CSV file to our map
+//	public void readCSVFileToOurMap(String file) {
+//		double countW = 0;
+//		double countW_q = 0;
+//		double countLambda = 0;
+//		double countServers = 0;
+//		double totalCount = 0;
+//		
+//		try {
+//			BufferedReader br = new BufferedReader(new FileReader(file)); // Open CSV file
+//			line = br.readLine(); // Read the headers (W,Wq,Lambda,Servers)
+//			line = line.replaceAll("\\uFEFF", ""); // fix the bug i faced
+//			line = "";
+//			while ((line = br.readLine()) != null) { // read line from CSV file
+//				totalCount = totalCount + 1;
+//				line = line.replaceAll("\\uFEFF", ""); // fix the bug i faced
+//				String[] data = line.split(",");
+//				for (int i = 0; i < data.length; i++) {
+//					
+//					if (i == 0)
+//						countW = countW + Double.parseDouble(data[i].trim());
+//					else if (i == 1)
+//						countW_q = countW_q + Double.parseDouble(data[i].trim());
+//					else if (i == 2)
+//						countLambda = countLambda + Double.parseDouble(data[i].trim());
+//					else
+//						countServers = countServers + Double.parseDouble(data[i].trim());
+//				}
+//				
+//				this.dataToSave.put("W", countW / totalCount);
+//				this.dataToSave.put("Q", countW_q / totalCount);
+//				this.dataToSave.put("Lambda", countLambda / totalCount);
+//				this.dataToSave.put("Servers", countServers / totalCount);
+//			}
+//			
+//			br.close(); // Close CSV file
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
+	// read CSV file to our map
+	public void writeDataToCsvFile(String fileName, String[] row) {
+	      CSVWriter writer;
+		try {
+			writer = new CSVWriter(new FileWriter(fileName, true));
+		     writer.writeNext(row);
+		     writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//	      String [] record = "3,David,Feezor,USA,40".split(",");
 	}
 	
 	
@@ -227,16 +317,7 @@ public class AwsS3 {
 //		}
 //	}
 	
-//	// delete file
-//	public void deleteFile(String bucketName, String objectKey) {
-//		// Object = Folder
-//			try {
-//				s3.deleteObject(bucketName, objectKey);
-//			} catch (AmazonS3Exception e) {
-//				System.err.println(e.getErrorMessage());
-//				System.exit(1);
-//			}
-//	}
+
 
 //	// delete folder
 //	public void deleteFolder(String bucketName, String objectKey) {

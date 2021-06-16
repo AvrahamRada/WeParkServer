@@ -30,12 +30,12 @@ public class ElementIdBoundary {
 	}
 
 	public void validation() {
-		if(this.domain == null) {
+		if (this.domain == null) {
 			throw new RuntimeException("ElementIdBoundary domain was not instantiate");
 		}
-		if(this.id == null) {
+		if (this.id == null) {
 			throw new RuntimeException("ElementIdBoundary id was not instantiate");
 		}
-		
+
 	}
 }
