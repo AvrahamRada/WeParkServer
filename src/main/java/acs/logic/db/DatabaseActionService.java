@@ -206,9 +206,9 @@ public class DatabaseActionService implements ActionService {
 					.orElseThrow(() -> new ElementNotFoundException("** ERROR ** || could not find element"));
 
 			fileName = getFileNameByElementName(elementEntity.getName());
-
-			amazonAWS.writeDataToCsvFile(fileName, new String[] { W + "", "0", "0", "0" });
-			return action;	
+			return action;
+//			amazonAWS.writeDataToCsvFile(fileName, new String[] { W + "", "0", "0", "0" });
+				
 
 //			amazonAWS.deleteFile(fileName);
 //
