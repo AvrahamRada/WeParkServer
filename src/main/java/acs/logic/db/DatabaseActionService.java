@@ -195,18 +195,18 @@ public class DatabaseActionService implements ActionService {
 			// - runtime Exception
 			DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
 					action.getInvokedBy().getUserId().getEmail(), UserRole.ACTOR, userDao, userConverter);
-
-			// Get W from the driver
-			double W = (double) action.getActionAttributes().get("totalTimeInSystem");
-
-			// Get the exact element whom we want to perform PARK on
-			elementEntity = elementDao
-					.findById(this.elementConverter.convertToEntityId(action.getElement().getElementId().getDomain(),
-							action.getElement().getElementId().getId()))
-					.orElseThrow(() -> new ElementNotFoundException("** ERROR ** || could not find element"));
-
-			fileName = getFileNameByElementName(elementEntity.getName());
 			return action;
+//			// Get W from the driver
+//			double W = (double) action.getActionAttributes().get("totalTimeInSystem");
+//
+//			// Get the exact element whom we want to perform PARK on
+//			elementEntity = elementDao
+//					.findById(this.elementConverter.convertToEntityId(action.getElement().getElementId().getDomain(),
+//							action.getElement().getElementId().getId()))
+//					.orElseThrow(() -> new ElementNotFoundException("** ERROR ** || could not find element"));
+
+//			fileName = getFileNameByElementName(elementEntity.getName());
+			
 //			amazonAWS.writeDataToCsvFile(fileName, new String[] { W + "", "0", "0", "0" });
 				
 
