@@ -208,27 +208,28 @@ public class DatabaseActionService implements ActionService {
 			fileName = getFileNameByElementName(elementEntity.getName());
 
 			amazonAWS.writeDataToCsvFile(fileName, new String[] { W + "", "0", "0", "0" });
+			return action;	
 
-			amazonAWS.deleteFile(fileName);
-
-			amazonAWS.uploadFile(fileName, fileName);
-			
-			queueingTheory = new QueueingTheory(
-					this.amazonAWS.getDataToSave().get("Lambda"),
-					this.amazonAWS.getDataToSave().get("W"),
-					this.amazonAWS.getDataToSave().get("Q"),
-					this.amazonAWS.getDataToSave().get("Servers"));
-			
-			elementBoundary = this.elementConverter.fromEntity(elementEntity);
-			
-			newElementBoundary = this.elementService.createWithoutSaving(this.projectName, "avraham@gmail.com",elementBoundary,
-					queueingTheory);
-			
-			// Update the element
-			this.elementService.update(this.projectName, "avraham@gmail.com", elementBoundary.getElementId().getDomain(),
-					elementBoundary.getElementId().getId(), newElementBoundary);
-
-			return action;		
+//			amazonAWS.deleteFile(fileName);
+//
+//			amazonAWS.uploadFile(fileName, fileName);
+//			
+//			queueingTheory = new QueueingTheory(
+//					this.amazonAWS.getDataToSave().get("Lambda"),
+//					this.amazonAWS.getDataToSave().get("W"),
+//					this.amazonAWS.getDataToSave().get("Q"),
+//					this.amazonAWS.getDataToSave().get("Servers"));
+//			
+//			elementBoundary = this.elementConverter.fromEntity(elementEntity);
+//			
+//			newElementBoundary = this.elementService.createWithoutSaving(this.projectName, "avraham@gmail.com",elementBoundary,
+//					queueingTheory);
+//			
+//			// Update the element
+//			this.elementService.update(this.projectName, "avraham@gmail.com", elementBoundary.getElementId().getDomain(),
+//					elementBoundary.getElementId().getId(), newElementBoundary);
+//
+//			return action;		
 
 		case FIND:
 			// Checking if the user that invoke this action is a actor: YES - continue, NO -
