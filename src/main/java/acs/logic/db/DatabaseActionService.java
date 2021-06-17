@@ -152,44 +152,42 @@ public class DatabaseActionService implements ActionService {
 			// - runtime Exception
 			DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
 					action.getInvokedBy().getUserId().getEmail(), UserRole.ACTOR, userDao, userConverter);
+			
+			// Get Wq from the driver
+			double Wq = (double) action.getActionAttributes().get("averageWaitingTime_q");
+
+			// Get the exact element whom we want to perform PARK on
+			elementEntity = elementDao
+					.findById(this.elementConverter.convertToEntityId(action.getElement().getElementId().getDomain(),
+							action.getElement().getElementId().getId()))
+					.orElseThrow(() -> new ElementNotFoundException("** ERROR ** || could not find element"));
+
+			fileName = getFileNameByElementName(elementEntity.getName());
+
+			amazonAWS.writeDataToCsvFile(fileName, new String[] { "0", Wq + "", "0", "0" });
+
+			amazonAWS.deleteFile(fileName);
+
+			amazonAWS.uploadFile(fileName, fileName);
+			
+			this.amazonAWS.readCSVFileToOurMap(fileName);
+						
+			queueingTheory = new QueueingTheory(
+					this.amazonAWS.getDataToSave().get("Lambda"),
+					this.amazonAWS.getDataToSave().get("W"),
+					this.amazonAWS.getDataToSave().get("Q"),
+					this.amazonAWS.getDataToSave().get("Servers"));
+			
+			elementBoundary = this.elementConverter.fromEntity(elementEntity);
+			
+			newElementBoundary = this.elementService.createWithoutSaving(this.projectName, "avraham@gmail.com",elementBoundary,
+					queueingTheory);
+			
+			// Update the element
+			this.elementService.update(this.projectName, "avraham@gmail.com", elementBoundary.getElementId().getDomain(),
+					elementBoundary.getElementId().getId(), newElementBoundary);
 
 			return action;
-			
-//			// Get Wq from the driver
-//			double Wq = (double) action.getActionAttributes().get("averageWaitingTime_q");
-//
-//			// Get the exact element whom we want to perform PARK on
-//			elementEntity = elementDao
-//					.findById(this.elementConverter.convertToEntityId(action.getElement().getElementId().getDomain(),
-//							action.getElement().getElementId().getId()))
-//					.orElseThrow(() -> new ElementNotFoundException("** ERROR ** || could not find element"));
-//
-//			fileName = getFileNameByElementName(elementEntity.getName());
-//
-//			amazonAWS.writeDataToCsvFile(fileName, new String[] { "0", Wq + "", "0", "0" });
-//
-//			amazonAWS.deleteFile(fileName);
-//
-//			amazonAWS.uploadFile(fileName, fileName);
-//			
-//			this.amazonAWS.readCSVFileToOurMap(fileName);
-//						
-//			queueingTheory = new QueueingTheory(
-//					this.amazonAWS.getDataToSave().get("Lambda"),
-//					this.amazonAWS.getDataToSave().get("W"),
-//					this.amazonAWS.getDataToSave().get("Q"),
-//					this.amazonAWS.getDataToSave().get("Servers"));
-//			
-//			elementBoundary = this.elementConverter.fromEntity(elementEntity);
-//			
-//			newElementBoundary = this.elementService.createWithoutSaving(this.projectName, "avraham@gmail.com",elementBoundary,
-//					queueingTheory);
-//			
-//			// Update the element
-//			this.elementService.update(this.projectName, "avraham@gmail.com", elementBoundary.getElementId().getDomain(),
-//					elementBoundary.getElementId().getId(), newElementBoundary);
-//
-//			return action;
 
 		case UNPARK:
 
