@@ -129,11 +129,11 @@ public class DatabaseElementService implements ElementService {
 		this.amazonAWS.downloadCSV("Neve_Tzedek.csv");
 		this.amazonAWS.downloadCSV("Frishman_Beach.csv");
 		this.amazonAWS.downloadCSV("Sharona_Market.csv");
-		this.amazonAWS.downloadCSV("Afeka.csv");
 		this.amazonAWS.downloadCSV("Allenby.csv");
 		this.amazonAWS.downloadCSV("School.csv");
 		this.amazonAWS.downloadCSV("Food_area.csv");
 		this.amazonAWS.downloadCSV("Work.csv");
+		this.amazonAWS.downloadCSV("Afeka.csv");
 	}
 
 	private void readAllFilesToOurMap() {
