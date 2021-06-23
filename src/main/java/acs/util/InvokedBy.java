@@ -1,9 +1,9 @@
 package acs.util;
 
 public class InvokedBy {
-	
+
 	private UserId userId;
-	
+
 	public InvokedBy() {
 	}
 
@@ -21,7 +21,7 @@ public class InvokedBy {
 	}
 
 	public void validation() {
-		if(this.userId == null) {
+		if (this.userId == null) {
 			throw new RuntimeException("\n** ERROR ** \nuserId is NULL.");
 		}
 		this.userId.validation();

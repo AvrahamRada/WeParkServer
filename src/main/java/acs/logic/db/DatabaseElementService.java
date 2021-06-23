@@ -5,13 +5,9 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -21,9 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import acs.boundaries.ElementBoundary;
-import acs.boundaries.ElementIdBoundary;
 import acs.dal.ElementDao;
 import acs.dal.UserDao;
 import acs.data.ElementEntity;
@@ -43,8 +37,8 @@ import acs.util.UserRole;
 @Service
 public class DatabaseElementService implements ElementService {
 
+	// finals
 	private static final int NUM_OF_ELEMENTS = 9;
-
 	private static final String ICHILOV_ELEMENT = "Ichilov Hospital";
 	private static final String NEVE_TZEDEK_ELEMENT = "Neve Tzedek";
 	private static final String BEACH_ELEMENT = "Frishman Beach";
@@ -54,12 +48,6 @@ public class DatabaseElementService implements ElementService {
 	private static final String SCHOOL_ELEMENT = "School Area";
 	private static final String FOOD_ELEMENT = "Food area";
 	private static final String WORK_ELEMENT = "Work";
-
-	// finals
-	private final double ARRIVAL_RATE = 60;
-	private final double TOTAL_TIME_IN_SYSTEM = 200;
-	private final double AVERAGE_WAITING_TIME_G = 20;
-	private final int SERVERS = 216;
 
 	private String projectName;
 	private ElementConverter elementConverter;
@@ -86,7 +74,6 @@ public class DatabaseElementService implements ElementService {
 			UserDao userDao) {
 
 		super();
-		
 
 		this.elementConverter = elementConverter;
 		this.elementDao = elementDao;
@@ -100,10 +87,7 @@ public class DatabaseElementService implements ElementService {
 
 		downloadFilesFromAmazonCloud(); // Download files to server
 
-
 		readAllFilesToOurMap(); // read
-		
-
 	}
 
 	private void deleteFilesFromServer() {
@@ -148,8 +132,6 @@ public class DatabaseElementService implements ElementService {
 		this.awsDataMap.put("Ichilov_Hospital" + "W", this.amazonAWS.getDataToSave().get("W"));
 		this.awsDataMap.put("Ichilov_Hospital" + "Wq", this.amazonAWS.getDataToSave().get("Q"));
 		this.awsDataMap.put("Ichilov_Hospital" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
-		
-
 
 		this.amazonAWS.readCSVFileToOurMap("Neve_Tzedek.csv"); // Save on the server
 		this.awsDataMap.put("Neve_Tzedek" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
@@ -250,10 +232,8 @@ public class DatabaseElementService implements ElementService {
 
 					// Neve_Tzedek_Neighborhood
 					this.queueingTheoryNeveTzedekElement = new QueueingTheory(
-							this.awsDataMap.get("Neve_Tzedek" + "Lambda"), 
-							this.awsDataMap.get("Neve_Tzedek" + "W"),
-							this.awsDataMap.get("Neve_Tzedek" + "Wq"), 
-							this.awsDataMap.get("Neve_Tzedek" + "Servers"));
+							this.awsDataMap.get("Neve_Tzedek" + "Lambda"), this.awsDataMap.get("Neve_Tzedek" + "W"),
+							this.awsDataMap.get("Neve_Tzedek" + "Wq"), this.awsDataMap.get("Neve_Tzedek" + "Servers"));
 
 					// Create temporary element
 					tempElement = createWithoutSaving(this.projectName, "avraham@gmail.com",
@@ -269,7 +249,7 @@ public class DatabaseElementService implements ElementService {
 										}
 									}),
 							this.queueingTheoryNeveTzedekElement);
-					
+
 					// Update the element
 					update(this.projectName, "avraham@gmail.com", elementBoundary.getElementId().getDomain(),
 							elementBoundary.getElementId().getId(), tempElement);
@@ -281,8 +261,7 @@ public class DatabaseElementService implements ElementService {
 					// Frishman Beach
 					this.queueingTheoryFrishmanBeachElement = new QueueingTheory(
 							this.awsDataMap.get("Frishman_Beach" + "Lambda"),
-							this.awsDataMap.get("Frishman_Beach" + "W"), 
-							this.awsDataMap.get("Frishman_Beach" + "Wq"),
+							this.awsDataMap.get("Frishman_Beach" + "W"), this.awsDataMap.get("Frishman_Beach" + "Wq"),
 							this.awsDataMap.get("Frishman_Beach" + "Servers"));
 
 					// Create temporary element
@@ -311,8 +290,7 @@ public class DatabaseElementService implements ElementService {
 					// Sharona_Market
 					this.queueingTheorySharonaMarketElement = new QueueingTheory(
 							this.awsDataMap.get("Sharona_Market" + "Lambda"),
-							this.awsDataMap.get("Sharona_Market" + "W"), 
-							this.awsDataMap.get("Sharona_Market" + "Wq"),
+							this.awsDataMap.get("Sharona_Market" + "W"), this.awsDataMap.get("Sharona_Market" + "Wq"),
 							this.awsDataMap.get("Sharona_Market" + "Servers"));
 
 					// Create temporary element
@@ -338,10 +316,8 @@ public class DatabaseElementService implements ElementService {
 
 				case AFEKA_ELEMENT:
 
-					this.queueingTheoryAfekaElement = new QueueingTheory(
-							this.awsDataMap.get("Afeka" + "Lambda"),
-							this.awsDataMap.get("Afeka" + "W"), 
-							this.awsDataMap.get("Afeka" + "Wq"),
+					this.queueingTheoryAfekaElement = new QueueingTheory(this.awsDataMap.get("Afeka" + "Lambda"),
+							this.awsDataMap.get("Afeka" + "W"), this.awsDataMap.get("Afeka" + "Wq"),
 							this.awsDataMap.get("Afeka" + "Servers"));
 
 					// Create temporary element
@@ -367,10 +343,8 @@ public class DatabaseElementService implements ElementService {
 
 				case ALLENBY_ELEMENT:
 
-					this.queueingTheoryAllenbyElement = new QueueingTheory(
-							this.awsDataMap.get("Allenby" + "Lambda"),
-							this.awsDataMap.get("Allenby" + "W"), 
-							this.awsDataMap.get("Allenby" + "Wq"),
+					this.queueingTheoryAllenbyElement = new QueueingTheory(this.awsDataMap.get("Allenby" + "Lambda"),
+							this.awsDataMap.get("Allenby" + "W"), this.awsDataMap.get("Allenby" + "Wq"),
 							this.awsDataMap.get("Allenby" + "Servers"));
 
 					// Create temporary element
@@ -396,10 +370,8 @@ public class DatabaseElementService implements ElementService {
 
 				case SCHOOL_ELEMENT:
 
-					this.queueingTheorySchoolElement = new QueueingTheory(
-							this.awsDataMap.get("School" + "Lambda"),
-							this.awsDataMap.get("School" + "W"), 
-							this.awsDataMap.get("School" + "Wq"),
+					this.queueingTheorySchoolElement = new QueueingTheory(this.awsDataMap.get("School" + "Lambda"),
+							this.awsDataMap.get("School" + "W"), this.awsDataMap.get("School" + "Wq"),
 							this.awsDataMap.get("School" + "Servers"));
 
 					// Create temporary element
@@ -426,10 +398,8 @@ public class DatabaseElementService implements ElementService {
 				case FOOD_ELEMENT:
 
 					// Food_area
-					this.queueingTheoryFoodAreaElement = new QueueingTheory(
-							this.awsDataMap.get("Food_area" + "Lambda"),
-							this.awsDataMap.get("Food_area" + "W"), 
-							this.awsDataMap.get("Food_area" + "Wq"),
+					this.queueingTheoryFoodAreaElement = new QueueingTheory(this.awsDataMap.get("Food_area" + "Lambda"),
+							this.awsDataMap.get("Food_area" + "W"), this.awsDataMap.get("Food_area" + "Wq"),
 							this.awsDataMap.get("Food_area" + "Servers"));
 
 					// Create temporary element
@@ -446,7 +416,7 @@ public class DatabaseElementService implements ElementService {
 										}
 									}),
 							this.queueingTheoryFoodAreaElement);
-					
+
 					// Update the element
 					update(this.projectName, "avraham@gmail.com", elementBoundary.getElementId().getDomain(),
 							elementBoundary.getElementId().getId(), tempElement);
@@ -456,10 +426,8 @@ public class DatabaseElementService implements ElementService {
 				case WORK_ELEMENT:
 
 					// Work
-					this.queueingTheoryWorkElement = new QueueingTheory(
-							this.awsDataMap.get("Work" + "Lambda"),
-							this.awsDataMap.get("Work" + "W"), 
-							this.awsDataMap.get("Work" + "Wq"),
+					this.queueingTheoryWorkElement = new QueueingTheory(this.awsDataMap.get("Work" + "Lambda"),
+							this.awsDataMap.get("Work" + "W"), this.awsDataMap.get("Work" + "Wq"),
 							this.awsDataMap.get("Work" + "Servers"));
 
 					// Create temporary element
@@ -476,7 +444,7 @@ public class DatabaseElementService implements ElementService {
 										}
 									}),
 							this.queueingTheoryWorkElement);
-					
+
 					// Update the element
 					update(this.projectName, "avraham@gmail.com", elementBoundary.getElementId().getDomain(),
 							elementBoundary.getElementId().getId(), tempElement);
@@ -725,14 +693,6 @@ public class DatabaseElementService implements ElementService {
 	@Override
 	public ElementBoundary createWithoutSaving(String managerDomain, String managerEmail,
 			ElementBoundary elementBoundary, QueueingTheory queueingTheory) {
-//		DatabaseUserService.checkRole(managerDomain, managerEmail, UserRole.MANAGER, userDao, userConverter);
-//		// Validate that the important element boundary fields are not null;
-//
-//		elementBoundary.validation();
-
-		// Set the element's domain to the project name and create the unique id for the
-		// element.
-//		elementBoundary.setElementId(new ElementId(getProjectName(), UUID.randomUUID().toString()));
 
 		// Set the element's creation date.
 		elementBoundary.setCreatedTimestamp(new Date(System.currentTimeMillis()));
@@ -757,12 +717,6 @@ public class DatabaseElementService implements ElementService {
 		elementBoundary.getElementAttributes().put("r", queueingTheory.getR());
 		elementBoundary.getElementAttributes().put("w_t", queueingTheory.getW_t());
 
-//		// Convert the element boundary to element entity
-//		ElementEntity elementEntity = elementConverter.toEntity(elementBoundary);
-
-//		// Add to database
-//		this.elementDao.save(elementEntity);
-
 		return elementBoundary;
 	}
 
@@ -775,7 +729,6 @@ public class DatabaseElementService implements ElementService {
 		ElementEntity foundedElement = this.elementDao
 				.findById(this.elementConverter.convertToEntityId(elementDomain, elementId))
 				.orElseThrow(() -> new ElementNotFoundException("could not find element"));
-//		System.err.println("******foundedElement*******************************************************************************");
 
 		// Convert the input to entity before update the values in element entity that
 		// is in the DB.
@@ -797,7 +750,6 @@ public class DatabaseElementService implements ElementService {
 		// are not null
 		toBeUpdatedEntity.setActive(inputEntity.getActive());
 		toBeUpdatedEntity.setElementAttributes(inputEntity.getElementAttributes());
-//		toBeUpdatedEntity.setLocation(inputEntity.getLocation());
 		toBeUpdatedEntity.setName(inputEntity.getName());
 		toBeUpdatedEntity.setType(inputEntity.getType());
 

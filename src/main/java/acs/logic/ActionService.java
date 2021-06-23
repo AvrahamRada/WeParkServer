@@ -1,7 +1,6 @@
 package acs.logic;
 
 import java.util.List;
-
 import acs.boundaries.ActionBoundary;
 
 public interface ActionService {

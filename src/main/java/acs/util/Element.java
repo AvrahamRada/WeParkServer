@@ -1,9 +1,9 @@
 package acs.util;
 
 public class Element {
-	
+
 	private ElementId elementId;
-	
+
 	public Element() {
 	}
 
@@ -21,7 +21,7 @@ public class Element {
 	}
 
 	public void validation() {
-		if(this.elementId == null) {
+		if (this.elementId == null) {
 			throw new RuntimeException("** ERROR ** || elementId is NULL.");
 		}
 		elementId.validation();

@@ -11,6 +11,7 @@ public class CreatedBy {
 		super();
 		this.userId = userId;
 	}
+
 	public UserId getUserId() {
 		return userId;
 	}

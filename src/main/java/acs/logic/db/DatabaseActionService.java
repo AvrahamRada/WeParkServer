@@ -1,15 +1,8 @@
 package acs.logic.db;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.PostConstruct;
@@ -19,18 +12,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
+//import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import acs.boundaries.ActionBoundary;
 import acs.boundaries.ElementBoundary;
-import acs.boundaries.UserBoundary;
 import acs.dal.ActionDao;
 import acs.dal.ElementDao;
 import acs.dal.UserDao;
-import acs.data.ActionEntity;
 import acs.data.ElementEntity;
-import acs.data.UserEntity;
 import acs.logic.ActionService;
 import acs.logic.ElementNotFoundException;
 import acs.logic.ElementService;
@@ -40,23 +29,18 @@ import acs.logic.util.ElementConverter;
 import acs.logic.util.QueueingTheory;
 import acs.logic.util.UserConverter;
 import acs.util.ActionId;
-import acs.util.CreatedBy;
-import acs.util.Element;
-import acs.util.ElementId;
-import acs.util.NewUserDetails;
-import acs.util.UserId;
 import acs.util.UserRole;
 
 @Configuration
 @EnableScheduling
 @Service
 public class DatabaseActionService implements ActionService {
-	private int counter = 0;
+//	private int counter = 0; // For scheduler
 
 	// finals
-	private final String PARK = "park"; 	// Action #1 - "park"
+	private final String PARK = "park"; // Action #1 - "park"
 	private final String UNPARK = "unpark"; // Action #2 - "unpark"
-	private final String FIND = "find"; 	// Action #3 - "find"
+	private final String FIND = "find"; // Action #3 - "find"
 
 	private String projectName;
 	private ActionConverter actionConverter;
@@ -72,7 +56,6 @@ public class DatabaseActionService implements ActionService {
 	public DatabaseActionService(ActionConverter actionConverter, ActionDao actionDao, UserConverter userConverter,
 			UserDao userDao, ElementDao elementDao, ElementConverter elementConverter, ElementService elementService) {
 		super();
-		System.err.println("******DatabaseActionService*******************************************************************************");
 
 		this.actionConverter = actionConverter;
 		this.actionDao = actionDao;
@@ -87,7 +70,9 @@ public class DatabaseActionService implements ActionService {
 
 	@PostConstruct
 	public void init() {
-//		test();
+
+//		//This section is in comments since this is just demo and not actual working system
+//		schedulerOfLambda();
 //		quartzScheduler.scheduleJob(
 //			    myJob, newTrigger().withIdentity("myJob", "group")
 //			                       .withSchedule(cronSchedule("0 * * * * ?")).build());
@@ -102,11 +87,11 @@ public class DatabaseActionService implements ActionService {
 	 * Fields by order: [second] [minute] [hour] [day of month] [month] [day(s) of
 	 * week]
 	 */
-	@Scheduled(cron = "0 0 * * * ?")
-	public void test() {
-		counter++;
-		System.err.println("Counter = " + counter);
-	}
+//	@Scheduled(cron = "0 0 * * * ?")
+//	public void schedulerOfLambda() {
+//		counter++;
+//		System.err.println("Counter = " + counter);
+//	}
 
 //	private static long millisToNextHour(Calendar calendar) {
 //	    int minutes = calendar.get(Calendar.MINUTE);
@@ -144,7 +129,7 @@ public class DatabaseActionService implements ActionService {
 		ElementBoundary elementBoundary = null;
 		ElementBoundary newElementBoundary = null;
 		QueueingTheory queueingTheory;
-		
+
 		List<ElementBoundary> allElements;
 		String fileName;
 
@@ -154,7 +139,6 @@ public class DatabaseActionService implements ActionService {
 			// - runtime Exception
 			DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
 					action.getInvokedBy().getUserId().getEmail(), UserRole.ACTOR, userDao, userConverter);
-			
 
 			// Get Wq from the driver
 			double Wq = (double) action.getActionAttributes().get("averageWaitingTime_q");
@@ -164,39 +148,30 @@ public class DatabaseActionService implements ActionService {
 					.findById(this.elementConverter.convertToEntityId(action.getElement().getElementId().getDomain(),
 							action.getElement().getElementId().getId()))
 					.orElseThrow(() -> new ElementNotFoundException("** ERROR ** || could not find element"));
-			
 
 			fileName = getFileNameByElementName(elementEntity.getName());
 
-			amazonAWS.writeDataToCsvFile(fileName, new String[] { -1+"", Wq+"", -1+"", -1+"" });
+			amazonAWS.writeDataToCsvFile(fileName, new String[] { -1 + "", Wq + "", -1 + "", -1 + "" });
 
 			amazonAWS.deleteFile(fileName);
 
 			amazonAWS.uploadFile(fileName, fileName);
-			
+
 			this.amazonAWS.readCSVFileToOurMap(fileName);
 
-			queueingTheory = new QueueingTheory(
-					this.amazonAWS.getDataToSave().get("Lambda"),
-					this.amazonAWS.getDataToSave().get("W"),
-					this.amazonAWS.getDataToSave().get("Q"),
+			queueingTheory = new QueueingTheory(this.amazonAWS.getDataToSave().get("Lambda"),
+					this.amazonAWS.getDataToSave().get("W"), this.amazonAWS.getDataToSave().get("Q"),
 					this.amazonAWS.getDataToSave().get("Servers"));
-			
+
 			elementBoundary = this.elementConverter.fromEntity(elementEntity);
-			
 
+			newElementBoundary = this.elementService.createWithoutSaving(this.projectName, "avraham@gmail.com",
+					elementBoundary, queueingTheory);
 
-			
-			newElementBoundary = this.elementService.createWithoutSaving(this.projectName, "avraham@gmail.com",elementBoundary,
-					queueingTheory);
-
-//			System.err.println("Domain: " + elementBoundary.getElementId().getDomain());
-//
-//			System.err.println("Id: " + elementBoundary.getElementId().getId());
-			
 			// Update the element
-			this.elementService.update(this.projectName, "avraham@gmail.com", elementBoundary.getElementId().getDomain(),
-					elementBoundary.getElementId().getId(), newElementBoundary);
+			this.elementService.update(this.projectName, "avraham@gmail.com",
+					elementBoundary.getElementId().getDomain(), elementBoundary.getElementId().getId(),
+					newElementBoundary);
 
 			return action;
 
@@ -206,7 +181,7 @@ public class DatabaseActionService implements ActionService {
 			// - runtime Exception
 			DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
 					action.getInvokedBy().getUserId().getEmail(), UserRole.ACTOR, userDao, userConverter);
-			
+
 			// Get W from the driver
 			double W = (double) action.getActionAttributes().get("totalTimeInSystem");
 
@@ -217,30 +192,28 @@ public class DatabaseActionService implements ActionService {
 					.orElseThrow(() -> new ElementNotFoundException("** ERROR ** || could not find element"));
 
 			fileName = getFileNameByElementName(elementEntity.getName());
-			
-			amazonAWS.writeDataToCsvFile(fileName, new String[] { W + "", -1+"", -1+"", -1+"" });
-				
+
+			amazonAWS.writeDataToCsvFile(fileName, new String[] { W + "", -1 + "", -1 + "", -1 + "" });
 
 			amazonAWS.deleteFile(fileName);
 
 			amazonAWS.uploadFile(fileName, fileName);
-			
-			queueingTheory = new QueueingTheory(
-					this.amazonAWS.getDataToSave().get("Lambda"),
-					this.amazonAWS.getDataToSave().get("W"),
-					this.amazonAWS.getDataToSave().get("Q"),
-					this.amazonAWS.getDataToSave().get("Servers"));
-			
-			elementBoundary = this.elementConverter.fromEntity(elementEntity);
-			
-			newElementBoundary = this.elementService.createWithoutSaving(this.projectName, "avraham@gmail.com",elementBoundary,
-					queueingTheory);
-			
-			// Update the element
-			this.elementService.update(this.projectName, "avraham@gmail.com", elementBoundary.getElementId().getDomain(),
-					elementBoundary.getElementId().getId(), newElementBoundary);
 
-			return action;		
+			queueingTheory = new QueueingTheory(this.amazonAWS.getDataToSave().get("Lambda"),
+					this.amazonAWS.getDataToSave().get("W"), this.amazonAWS.getDataToSave().get("Q"),
+					this.amazonAWS.getDataToSave().get("Servers"));
+
+			elementBoundary = this.elementConverter.fromEntity(elementEntity);
+
+			newElementBoundary = this.elementService.createWithoutSaving(this.projectName, "avraham@gmail.com",
+					elementBoundary, queueingTheory);
+
+			// Update the element
+			this.elementService.update(this.projectName, "avraham@gmail.com",
+					elementBoundary.getElementId().getDomain(), elementBoundary.getElementId().getId(),
+					newElementBoundary);
+
+			return action;
 
 		case FIND:
 			// Checking if the user that invoke this action is a actor: YES - continue, NO -
@@ -254,25 +227,11 @@ public class DatabaseActionService implements ActionService {
 					.collect(Collectors.toList());
 
 			return allElements;
-//				index = -1;
-//				// Find specific element that we need
-//				for (int i = 0; i < allElements.size(); i++) {
-//					if(isInside((double)(action.getActionAttributes().get("lat")),
-//								(double)(action.getActionAttributes().get("lng")),
-//								allElements.get(i))) {
-//						index = i;
-//						break;
-//					}
-//				}
-//				
-//				if(index>=0 && index <=8)
-//					return allElements.get(index);
-//				throw new RuntimeException("** ERROR ** || user's location is not valid (out of range)");
 
 		default:
 			return action;
 		}
-	}	
+	}
 
 	private String getFileNameByElementName(String name) {
 		if (name.equals("Ichilov Hospital")) {
@@ -326,11 +285,6 @@ public class DatabaseActionService implements ActionService {
 			} else {
 				return false;
 			}
-//	            if(leftUpLng <= longitude && leftUpLng <= longitude && longitude <= rightDownLng){
-//	                return true;
-//	            } else if(leftUpLng > rightDownLng && (leftUpLng <= longitude || longitude <= rightDownLng)) {
-//	                return true;
-//	            }
 		}
 		return false;
 	}

@@ -1,25 +1,22 @@
 package acs.logic.util;
 
 import java.util.Map;
-
 import javax.persistence.AttributeConverter;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class MapToJsonConverter implements AttributeConverter<Map<String, Object>, String>{
+public class MapToJsonConverter implements AttributeConverter<Map<String, Object>, String> {
 	private ObjectMapper jackson;
-	
+
 	public MapToJsonConverter() {
 		this.jackson = new ObjectMapper();
 	}
-	
+
 	@Override
 	public String convertToDatabaseColumn(Map<String, Object> attributes) {
-		// use jackson for marshalling the attributes 
+		// use jackson for marshalling the attributes
 		try {
-			return this.jackson
-					.writeValueAsString(attributes);
+			return this.jackson.writeValueAsString(attributes);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}

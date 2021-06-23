@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 
 import acs.boundaries.UserBoundary;
 import acs.data.UserEntity;
-import acs.util.UserId;
 
 @Component
 public class UserConverter extends Converter {

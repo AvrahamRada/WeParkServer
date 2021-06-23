@@ -2,21 +2,21 @@ package acs.logic.util;
 
 public class QueueingTheory {
 
-	private double generalQuantity; // L - Total amount of customers in system (currently parking + waiting for a
-									// parking place)
-	private double arrivalRate; // Lamda - arrival rate of customers to the GRID
-	private double totalTimeInSystem; // W - Total time in the system (waiting for a parking place + parking)
-	private double averageQueueQuantity_q; // Lq - amount of customers waiting for a parking in average.
-	private double averageWaitingTime_q; // Wq - average waiting time in a queue
-	private double serviceRate; // Meu - how many customers, a single parking spot, is serving (in a unit of
-								// time)
-	private double averageServiceDuration; // 1/Meu - how long customer is using a parking spot
-	private int servers; // C - how many parking spots are available
-	private double overload; // p - load on the system
-	private double getServiceImmediately; // p0 - What is the chance of getting service immediately without waiting at
+	private double generalQuantity; 		// L - Total amount of customers in system (currently parking + waiting for a
+											// parking place)
+	private double arrivalRate; 			// Lamda - arrival rate of customers to the GRID
+	private double totalTimeInSystem; 		// W - Total time in the system (waiting for a parking place + parking)
+	private double averageQueueQuantity_q; 	// Lq - amount of customers waiting for a parking in average.
+	private double averageWaitingTime_q; 	// Wq - average waiting time in a queue
+	private double serviceRate; 			// Meu - how many customers, a single parking spot, is serving (in a unit of
+											// time)
+	private double averageServiceDuration; 	// 1/Meu - how long customer is using a parking spot
+	private int servers; 					// C - how many parking spots are available
+	private double overload; 				// p - load on the system
+	private double getServiceImmediately; 	// p0 - What is the chance of getting service immediately without waiting at
 											// all
-	private double w_t; // W(t) - The chances to get a service within t units of time
-	private double r; // r - ratio
+	private double w_t; 					// W(t) - The chances to get a service within t units of time
+	private double r; 						// r - ratio
 
 	private final double MINUTES_IN_HOUR = 60;
 
@@ -28,8 +28,8 @@ public class QueueingTheory {
 		setArrivalRate(arrivalRate);
 		setTotalTimeInSystem(totalTimeInSystem);
 		setAverageWaitingTime_q(averageWaitingTime_q);
-		setServers((int)servers);
-		
+		setServers((int) servers);
+
 		this.arrivalRate = getArrivalRate();
 		this.totalTimeInSystem = getTotalTimeInSystem();
 		this.averageWaitingTime_q = getAverageWaitingTime_q();
@@ -75,8 +75,6 @@ public class QueueingTheory {
 		this.totalTimeInSystem = totalTimeInSystem / MINUTES_IN_HOUR;
 	}
 
-	// -------------------------------------------------------------------------------------------------------
-
 	// get Lq
 	public double getAverageQueueQuantity_q() {
 		return averageQueueQuantity_q;
@@ -84,10 +82,8 @@ public class QueueingTheory {
 
 	// set Lq
 	public void setAverageQueueQuantity_q(double arrivalRate, double averageWaitingTime_q) {
-		this.averageQueueQuantity_q = getArrivalRate() * getAverageWaitingTime_q(); // Lq = lamda * WqvalRate() *
+		this.averageQueueQuantity_q = getArrivalRate() * getAverageWaitingTime_q(); // Lq = lamda * WqvalRate()
 	}
-
-	// -------------------------------------------------------------------------------------------------------
 
 	// get Wq
 	public double getAverageWaitingTime_q() {
@@ -99,8 +95,6 @@ public class QueueingTheory {
 		this.averageWaitingTime_q = averageWaitingTime_q / MINUTES_IN_HOUR;
 	}
 
-	// -------------------------------------------------------------------------------------------------------
-
 	// get Meu
 	public double getServiceRate() {
 		return serviceRate;
@@ -110,8 +104,6 @@ public class QueueingTheory {
 	public void setServiceRate() {
 		this.serviceRate = getArrivalRate() / (getGeneralQuantity() - getAverageQueueQuantity_q());
 	}
-
-	// -------------------------------------------------------------------------------------------------------
 
 	// get 1/Meu
 	public double getAverageServiceDuration() {
@@ -123,8 +115,6 @@ public class QueueingTheory {
 		this.averageServiceDuration = 1 / getServiceRate();
 	}
 
-	// -------------------------------------------------------------------------------------------------------
-
 	// get C
 	public int getServers() {
 		return servers;
@@ -135,8 +125,6 @@ public class QueueingTheory {
 		this.servers = servers;
 	}
 
-	// -------------------------------------------------------------------------------------------------------
-
 	// get p
 	public double getOverload() {
 		return overload;
@@ -144,10 +132,8 @@ public class QueueingTheory {
 
 	// set p
 	public void setOverload() {
-		this.overload = getArrivalRate() / (getServers() * getServiceRate()); 
+		this.overload = getArrivalRate() / (getServers() * getServiceRate());
 	}
-
-	// -------------------------------------------------------------------------------------------------------
 
 	public double getGetServiceImmediately() {
 		return getServiceImmediately;
@@ -156,8 +142,6 @@ public class QueueingTheory {
 	public void setGetServiceImmediately() {
 		this.getServiceImmediately = Math.pow(sigma(getServers()), -1);
 	}
-
-	// -------------------------------------------------------------------------------------------------------
 
 	// get W(t)
 	public double getW_t() {
@@ -173,8 +157,6 @@ public class QueueingTheory {
 				/ (factorialIterative(getServers()) * (1 - getOverload()));
 		this.w_t = 1 - (temp1 * temp2);
 	}
-
-	// -------------------------------------------------------------------------------------------------------
 
 	// get r
 	public double getR() {
@@ -209,5 +191,4 @@ public class QueueingTheory {
 				+ (Math.pow(getR(), getServers()) / (factorialIterative(getServers()) * (1 - getOverload())));
 		return temp;
 	}
-
 }

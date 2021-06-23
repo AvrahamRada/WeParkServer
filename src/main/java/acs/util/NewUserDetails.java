@@ -5,7 +5,7 @@ public class NewUserDetails {
 	private UserRole role;
 	private String username;
 	private String licensePlate;
-	
+
 	public NewUserDetails() {
 	}
 
