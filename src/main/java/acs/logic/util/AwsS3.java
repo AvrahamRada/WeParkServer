@@ -152,6 +152,7 @@ public class AwsS3 {
 		double currentAvgOfW_q;
 		double currentAvgOfLambda;
 		double currentAvgOfServers;
+
 		
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file)); // Open CSV file
@@ -174,16 +175,22 @@ public class AwsS3 {
 						countServers = countServers + Double.parseDouble(data[i].trim());
 				}
 			}
+
 			
+//			line = line.replaceAll("\\uFEFF", ""); // fix the bug i faced
+
 			currentAvgOfW = countW / totalCount;
 			currentAvgOfW_q = countW_q / totalCount;
 			currentAvgOfLambda = countLambda / totalCount;
 			currentAvgOfServers = countServers;
-			
+
 			while (line != null) { // read line from CSV file
 				totalCount = totalCount + 1;
 				line = line.replaceAll("\\uFEFF", ""); // fix the bug i faced
 				String[] data = line.split(",");
+				
+
+				
 				for (int i = 0; i < data.length; i++) {
 					
 					if (i == 0)
@@ -197,6 +204,7 @@ public class AwsS3 {
 				}
 				
 				line = br.readLine();
+				
 			}
 			
 			this.dataToSave.put("W", currentAvgOfW);
@@ -204,9 +212,12 @@ public class AwsS3 {
 			this.dataToSave.put("Lambda", currentAvgOfLambda);
 			this.dataToSave.put("Servers", currentAvgOfServers);
 			
+
+
 			br.close(); // Close CSV file
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.err.println("*** ERROR ***");
 		}
 	}
 	
@@ -261,7 +272,11 @@ public class AwsS3 {
 	public void writeDataToCsvFile(String fileName, String[] row) {
 	      CSVWriter writer;
 		try {
-			writer = new CSVWriter(new FileWriter(fileName, true));
+			writer = new CSVWriter(new FileWriter(fileName, true),CSVWriter.DEFAULT_SEPARATOR,
+				    CSVWriter.NO_QUOTE_CHARACTER,
+				    CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+				    CSVWriter.RFC4180_LINE_END);
+			
 		     writer.writeNext(row);
 		     writer.close();
 		} catch (IOException e) {

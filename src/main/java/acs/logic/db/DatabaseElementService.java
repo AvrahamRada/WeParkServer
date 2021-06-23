@@ -86,6 +86,8 @@ public class DatabaseElementService implements ElementService {
 			UserDao userDao) {
 
 		super();
+		
+
 		this.elementConverter = elementConverter;
 		this.elementDao = elementDao;
 		this.userConverter = userConverter;
@@ -98,7 +100,10 @@ public class DatabaseElementService implements ElementService {
 
 		downloadFilesFromAmazonCloud(); // Download files to server
 
+
 		readAllFilesToOurMap(); // read
+		
+
 	}
 
 	private void deleteFilesFromServer() {
@@ -138,10 +143,13 @@ public class DatabaseElementService implements ElementService {
 
 	private void readAllFilesToOurMap() {
 		this.amazonAWS.readCSVFileToOurMap("Ichilov_Hospital.csv");
+
 		this.awsDataMap.put("Ichilov_Hospital" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
 		this.awsDataMap.put("Ichilov_Hospital" + "W", this.amazonAWS.getDataToSave().get("W"));
 		this.awsDataMap.put("Ichilov_Hospital" + "Wq", this.amazonAWS.getDataToSave().get("Q"));
 		this.awsDataMap.put("Ichilov_Hospital" + "Servers", this.amazonAWS.getDataToSave().get("Servers"));
+		
+
 
 		this.amazonAWS.readCSVFileToOurMap("Neve_Tzedek.csv"); // Save on the server
 		this.awsDataMap.put("Neve_Tzedek" + "Lambda", this.amazonAWS.getDataToSave().get("Lambda"));
@@ -724,7 +732,7 @@ public class DatabaseElementService implements ElementService {
 
 		// Set the element's domain to the project name and create the unique id for the
 		// element.
-		elementBoundary.setElementId(new ElementId(getProjectName(), UUID.randomUUID().toString()));
+//		elementBoundary.setElementId(new ElementId(getProjectName(), UUID.randomUUID().toString()));
 
 		// Set the element's creation date.
 		elementBoundary.setCreatedTimestamp(new Date(System.currentTimeMillis()));
@@ -767,6 +775,7 @@ public class DatabaseElementService implements ElementService {
 		ElementEntity foundedElement = this.elementDao
 				.findById(this.elementConverter.convertToEntityId(elementDomain, elementId))
 				.orElseThrow(() -> new ElementNotFoundException("could not find element"));
+//		System.err.println("******foundedElement*******************************************************************************");
 
 		// Convert the input to entity before update the values in element entity that
 		// is in the DB.

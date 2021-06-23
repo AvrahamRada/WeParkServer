@@ -72,6 +72,8 @@ public class DatabaseActionService implements ActionService {
 	public DatabaseActionService(ActionConverter actionConverter, ActionDao actionDao, UserConverter userConverter,
 			UserDao userDao, ElementDao elementDao, ElementConverter elementConverter, ElementService elementService) {
 		super();
+		System.err.println("******DatabaseActionService*******************************************************************************");
+
 		this.actionConverter = actionConverter;
 		this.actionDao = actionDao;
 		this.userConverter = userConverter;
@@ -153,6 +155,7 @@ public class DatabaseActionService implements ActionService {
 			DatabaseUserService.checkRole(action.getInvokedBy().getUserId().getDomain(),
 					action.getInvokedBy().getUserId().getEmail(), UserRole.ACTOR, userDao, userConverter);
 			
+
 			// Get Wq from the driver
 			double Wq = (double) action.getActionAttributes().get("averageWaitingTime_q");
 
@@ -161,17 +164,18 @@ public class DatabaseActionService implements ActionService {
 					.findById(this.elementConverter.convertToEntityId(action.getElement().getElementId().getDomain(),
 							action.getElement().getElementId().getId()))
 					.orElseThrow(() -> new ElementNotFoundException("** ERROR ** || could not find element"));
+			
 
 			fileName = getFileNameByElementName(elementEntity.getName());
 
-			amazonAWS.writeDataToCsvFile(fileName, new String[] { "0", Wq + "", "0", "0" });
+			amazonAWS.writeDataToCsvFile(fileName, new String[] { -1+"", Wq+"", -1+"", -1+"" });
 
 			amazonAWS.deleteFile(fileName);
 
 			amazonAWS.uploadFile(fileName, fileName);
 			
 			this.amazonAWS.readCSVFileToOurMap(fileName);
-						
+
 			queueingTheory = new QueueingTheory(
 					this.amazonAWS.getDataToSave().get("Lambda"),
 					this.amazonAWS.getDataToSave().get("W"),
@@ -180,8 +184,15 @@ public class DatabaseActionService implements ActionService {
 			
 			elementBoundary = this.elementConverter.fromEntity(elementEntity);
 			
+
+
+			
 			newElementBoundary = this.elementService.createWithoutSaving(this.projectName, "avraham@gmail.com",elementBoundary,
 					queueingTheory);
+
+//			System.err.println("Domain: " + elementBoundary.getElementId().getDomain());
+//
+//			System.err.println("Id: " + elementBoundary.getElementId().getId());
 			
 			// Update the element
 			this.elementService.update(this.projectName, "avraham@gmail.com", elementBoundary.getElementId().getDomain(),
@@ -207,7 +218,7 @@ public class DatabaseActionService implements ActionService {
 
 			fileName = getFileNameByElementName(elementEntity.getName());
 			
-			amazonAWS.writeDataToCsvFile(fileName, new String[] { W + "", "0", "0", "0" });
+			amazonAWS.writeDataToCsvFile(fileName, new String[] { W + "", -1+"", -1+"", -1+"" });
 				
 
 			amazonAWS.deleteFile(fileName);
