@@ -139,6 +139,7 @@ public class DatabaseUserService implements UserService {
 //		updateUser.setAvatar(update.getAvatar());
 		updateUser.setRole(update.getRole());
 		updateUser.setUsername(update.getUsername());
+		updateUser.setLicensePlate(update.getLicensePlate());
 		this.userDao.save(updateUser);
 		return this.userConverter.fromEntity(updateUser);
 
